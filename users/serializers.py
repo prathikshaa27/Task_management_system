@@ -13,7 +13,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ["username", "email", "password", "password_check"]
-
+    #to validate password
     def validate(self, data):
         if data["password"] != data["password_check"]:
             raise serializers.ValidationError(
