@@ -1,0 +1,11 @@
+<h1>Task Dashboard</h1>
+<a href ="{% url 'task_create' %}">Add new task</a>
+<ul>
+    {% for task in tasks %}
+    <li>
+        <strong>{{task.title}}</strong>| {{task.status}} | {{task.priority}}
+        <a href = "{% url 'task_update' task.pk %}">Edit Tasks</a>
+        <a href = "{% url 'task_delete' task.pk %}">Delete Tasks</a>
+    </li>
+    {% endfor %}
+</ul>
