@@ -13,7 +13,8 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ["username", "email", "password", "password_check"]
-    #to validate password
+
+    # to validate password
     def validate(self, data):
         if data["password"] != data["password_check"]:
             raise serializers.ValidationError(
@@ -22,8 +23,14 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         return data
 
     def create(self, validated_data):
-        validated_data.pop("password_check")
-        return User.objects.create_user(**validated_data)
+        try:
+            validated_data.pop("password_check")
+            user_creation = User.objects.create_user(**validated_data)
+            return user_creation
+        except Exception as e:
+            raise serializers.ValidationError(
+                {"error": f"User creation failed{str(e)}"}
+            )
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
@@ -36,6 +43,11 @@ class UserProfileSerializer(serializers.ModelSerializer):
         fields = ["username", "email", "password"]
 
     def update(self, instance, validated_data):
-        if "password" in validated_data:
-            instance.set_password(validated_data.pop("password"))
-        return super().update(instance, validated_data)
+        try:
+            if "password" in validated_data:
+                instance.set_password(validated_data.pop("password"))
+            return super().update(instance, validated_data)
+        except Exception as e:
+            raise serializers.ValidationError(
+                {"error": f"User profile update failed{str(e)}"}
+            )
