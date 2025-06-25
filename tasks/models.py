@@ -3,6 +3,10 @@ from django.conf import settings
 
 
 # Create your models here.
+class Category(models.Model):
+    name = models.CharField(max_length=35,unique=True)
+    def __str__(self):
+        return self.name
 class Task(models.Model):
     PRIORITY_CHOICES = [("Low", "Low"), ("Medium", "Medium"), ("High", "High")]
     STATUS_CHOICES = [
@@ -22,6 +26,6 @@ class Task(models.Model):
     status = models.CharField(
         max_length=15, choices=STATUS_CHOICES, default="In Progress"
     )
-    category = models.CharField(max_length=13, blank=True, null=True)
+    category = models.ManyToManyField(Category, blank=True)
     created_at = models.DateField(auto_now_add=True)
     updated_at = models.DateField(auto_now=True)
