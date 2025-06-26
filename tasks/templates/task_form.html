@@ -1,24 +1,7 @@
 <h1>{% if form.instance.pk %}Edit Task{% else %}New Task{% endif %}</h1>
 <form method="post">
     {% csrf_token %}
-    <label for="title">Title</label><br>
-    {{form.title}}<br><br>
-
-    <label for="description">Description</label><br>
-    {{form.description}}<br><br>
-
-    <label for="priority">Priority</label><br>
-    {{form.priority}}<br><br>
-
-    <label for="due_date">Due date</label><br>
-    {{form.due_date}}<br><br>
-
-    <label for="status">Status</label><br>
-    {{form.status}}<br><br>
-    
-    <label>Categories: </label>
-    {{form.categories}}<br><br>
-
+    {{form.as_p}}
     <button type="submit">Save</button>
 </form>
 <a href = "{% url 'task_list' %}">Back</a>

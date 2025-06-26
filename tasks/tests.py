@@ -10,6 +10,7 @@ from datetime import date, timedelta
 # Create your tests here.
 User = get_user_model()
 
+
 @pytest.fixture
 def test_user(db):
     return User.objects.create_user(
@@ -31,21 +32,21 @@ def create_tasks(test_user):
         title="Urgent Task",
         priority="High",
         status="Pending",
-        due_date=date.today() + timedelta(days=1),
+        due_date=date.today(),
     )
     Task.objects.create(
         user=test_user,
         title="Medium Task",
         priority="Medium",
         status="In Progress",
-        due_date=date.today() + timedelta(days=3),
+        due_date=date.today(),
     )
     Task.objects.create(
         user=test_user,
         title="Low priority Task",
         priority="Low",
         status="Completed",
-        due_date=date.today() + timedelta(days=5),
+        due_date=date.today() + timedelta(days=1),
     )
 
 
@@ -113,8 +114,47 @@ def test_task_filter_by_status(client_logged_in, test_user, create_tasks):
 
 @pytest.mark.django_db
 def test_task_filter_by_due_date(client_logged_in, test_user, create_tasks):
-    future_date = (date.today() + timedelta(days=1)).isoformat()
-    response = client_logged_in.get(reverse("task_list"), {"status": "future_date"})
-    assert response.status_code == 200
-    assert b"Urgent Task" in response.content
-    assert b"Low Priority Task" not in response.content
+    today_date = date.today().isoformat()
+    url = reverse("task_list")
+    response = client_logged_in.get(url, {"due_date": today_date})
+    content = response.content.decode()
+    assert "Urgent Task" in content
+    assert "Medium Task" in content
+    assert "Low priority Task" not in content
+
+
+@pytest.mark.django_db
+def test_sort_by_due_date(client_logged_in, create_tasks):
+    url = reverse("task_list")
+    response = client_logged_in.get(url, {"sort": "due_date"})
+    content = response.content.decode()
+
+    assert (
+        content.find("Urgent Task")
+        < content.find("Medium Task")
+        < content.find("Low priority Task")
+    )
+
+
+@pytest.mark.django_db
+def test_sort_by_priority(client_logged_in, create_tasks):
+    url = reverse("task_list")
+    response = client_logged_in.get(url, {"sort": "priority"})
+    content = response.content.decode()
+
+    assert (
+        content.find("Urgent Task")
+        < content.find("Medium Task")
+        < content.find("Low priority Task")
+    )
+
+
+@pytest.mark.django_db
+def test_sort_by_due_notifications(client_logged_in, create_tasks):
+    url = reverse("task_notifications")
+    response = client_logged_in.get(url)
+    content = response.content.decode()
+
+    assert "Urgent Task" in content
+    assert "Medium Task" in content
+    assert "Low priority Task" not in content
