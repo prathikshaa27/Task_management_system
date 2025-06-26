@@ -4,9 +4,12 @@ from django.conf import settings
 
 # Create your models here.
 class Category(models.Model):
-    name = models.CharField(max_length=35,unique=True)
+    name = models.CharField(max_length=25, unique=True)
+
     def __str__(self):
         return self.name
+
+
 class Task(models.Model):
     PRIORITY_CHOICES = [("Low", "Low"), ("Medium", "Medium"), ("High", "High")]
     STATUS_CHOICES = [

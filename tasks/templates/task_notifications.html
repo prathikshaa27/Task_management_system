@@ -1,0 +1,12 @@
+<h1>Due task reaminders</h1>
+<ul>
+    {% for task in due_tasks %}
+       <li>
+          <strong>{{task.title}}</strong> - Due: {{task.due_date}} - Status: {{task.status}}
+          <a href="{% url 'task_update' task.pk %}">Update</a>
+       </li>
+    {% empty %}
+       <li>No tasks are due today</li>
+    {% endfor %}
+</ul>
+<a href="{% url 'task_list' %}">Back to Dashboard</a>

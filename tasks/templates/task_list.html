@@ -8,13 +8,28 @@
     {% for task in tasks %}
       <li>
         <strong>{{task.title}}</strong>| {{task.status}} | {{task.priority}} | {{task.due_date}}
+        <form method="post" action="{% url 'change_status' task.pk %}">
+         {% csrf_token %}
+         {% if not task.status == "Completed" %}
+           <button type="submit" name="status" value="Completed">Mark as completed</button>
+          {% endif %}
+          {% if not task.status == "In Progress" %}
+           <button type="submit" name="status" value="In Progress">Mark as In porgress</button>
+          {% endif %}
+          {% if not task.status == "Pending" %}
+           <button type="submit" name="status" value="Pending">Mark as Pending</button>
+          {% endif %}
+        </form>
         <a href = "{% url 'task_update' task.pk %}">Edit Tasks</a>
         <a href = "{% url 'task_delete' task.pk %}">Delete Tasks</a>
-      <p><strong>Categories: </strong>
-        {% for category in task.categories.all %}
-           {{category.name}} {% if not forloop.last %}, {% endif %}
-        {% endfor %}
-      </p>
     </li>
+    <p>
+      <strong>Categories:</strong>
+      {% for category in task.category.all %}
+         {{category.name}}{% if not forloop.last %}, {% endif %}
+      {% empty %}
+         No Categories
+      {% endfor %}
+    </p>
     {% endfor %}
 </ul>

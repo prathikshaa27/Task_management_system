@@ -3,8 +3,7 @@ from tasks.models import Task, Category
 
 
 class TaskForm(forms.ModelForm):
-    # import pdb;pdb.set_trace()
-    categories = forms.ModelMultipleChoiceField(
+    category = forms.ModelMultipleChoiceField(
         queryset=Category.objects.all(),
         widget=forms.CheckboxSelectMultiple,
         required=False,
