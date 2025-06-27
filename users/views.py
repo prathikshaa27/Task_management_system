@@ -8,6 +8,7 @@ from users.serializers import UserRegistrationSerializer, UserProfileSerializer
 from django.contrib.auth import get_user_model
 from django.http import request
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.authentication import SessionAuthentication
 
 
 # Create your views here.
@@ -23,8 +24,6 @@ class UserRegistrationView(generics.CreateAPIView):
     password, and password confirmation. Uses UserRegistrationSerializer
     for input validation.
     """
-
-    fetch_all_users = User.objects.all()
     serializer_class = UserRegistrationSerializer
 
 
@@ -36,8 +35,12 @@ class LoginView(APIView):
     Authenticates the user using Django's built-in authentication system.
     Returns a success message on login or an error message on failure.
     """
-
     def post(self, request):
+        """
+        Handle POST request for user login.
+
+        Validates credentials, logs in the user if valid, and returns a response.
+        """
         try:
             username = request.data.get("username")
             password = request.data.get("password")
@@ -66,6 +69,7 @@ class UserProfileView(RetrieveUpdateAPIView):
     """
 
     serializer_class = UserProfileSerializer
+    authentication_classes=[SessionAuthentication]
     permission_classes = [IsAuthenticated]
 
     def get_object(self):
