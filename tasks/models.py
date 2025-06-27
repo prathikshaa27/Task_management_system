@@ -29,6 +29,6 @@ class Task(models.Model):
     status = models.CharField(
         max_length=15, choices=STATUS_CHOICES, default="In Progress"
     )
-    category = models.ManyToManyField(Category, blank=True)
+    category = models.ManyToManyField(Category, blank=True, related_name="tasks")
     created_at = models.DateField(auto_now_add=True)
     updated_at = models.DateField(auto_now=True)
