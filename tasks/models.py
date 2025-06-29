@@ -32,3 +32,5 @@ class Task(models.Model):
     category = models.ManyToManyField(Category, blank=True, related_name="tasks")
     created_at = models.DateField(auto_now_add=True)
     updated_at = models.DateField(auto_now=True)
+    reminder_sent_for_1_day = models.BooleanField(default=False)
+    reminder_sent_for_2_days = models.BooleanField(default=False)

@@ -9,11 +9,16 @@ class TaskSummarySerializer(serializers.ModelSerializer):
 
 
 class CategorySerializer(serializers.ModelSerializer):
-    tasks = TaskSummarySerializer(many=True, read_only=True)
+    tasks = serializers.SerializerMethodField()
 
     class Meta:
         model = Category
         fields = ["id", "name", "tasks"]
+
+    def get_tasks(self, obj):
+        user = self.context["request"].user
+        tasks = obj.tasks.filter(user=user)
+        return TaskSummarySerializer(tasks, many=True).data
 
 
 class TaskSerializer(serializers.ModelSerializer):
