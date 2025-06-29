@@ -96,3 +96,6 @@ class CategoryViewSet(viewsets.ModelViewSet):
                 f"Error fetching categories for user {self.request.user}: {str(e)}"
             )
             return Category.objects.none()
+
+    def get_serializer_context(self):
+        return {"request": self.request}
