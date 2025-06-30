@@ -4,6 +4,7 @@ from tasks.serializers import TaskSerializer, CategorySerializer
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
 from rest_framework import serializers
+from rest_framework_simplejwt.authentication import JWTAuthentication
 import logging
 
 logger = logging.getLogger(__name__)
@@ -32,6 +33,11 @@ class TaskViewSet(viewsets.ModelViewSet):
     search_fields = ["title", "category__name"]
 
     def get_queryset(self):
+        """_summary_
+
+        Returns:
+            _type_: _description_
+        """
         """
         Returns queryset of tasks that belong to the authenticated user.
 
@@ -45,10 +51,16 @@ class TaskViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         """
-        Creates a new task associated with the authenticated user.
+        Handles the creation of a new Task object.
 
-        If 'category' is in the request data, sets the categories accordingly.
-        Logs errors and raises validation error if creation fails.
+        This method assigns the currently authenticated user to the task and
+        sets the associated categories if provided in the request data.
+
+        Args:
+            serializer (TaskSerializer): The serializer instance containing validated task data.
+
+        Raises:
+            serializers.ValidationError: If task creation fails due to invalid input or internal error.
         """
         try:
             task = serializer.save(user=self.request.user)
@@ -62,10 +74,15 @@ class TaskViewSet(viewsets.ModelViewSet):
 
     def perform_update(self, serializer):
         """
-        Updates an existing task for the authenticated user.
+         Updates an existing task for the authenticated user.
 
-        If 'category' is present, updates the many-to-many relationship.
-        Logs errors and raises validation error if update fails.
+         If 'category' is present, updates the many-to-many relationship.
+         Logs errors and raises validation error if update fails.
+         Args:
+          serializer (TaskSerializer): The serializer instance containing the updated task data.
+
+        Raises:
+          serializers.ValidationError: If the task update fails due to invalid input or internal error.
         """
         try:
             task = serializer.save(user=self.request.user)
@@ -89,6 +106,20 @@ class CategoryViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
+        """
+        Returns a queryset of categories associated with the authenticated user's tasks.
+
+        This method filters `Category` objects to include only those linked to tasks
+        that belong to the currently logged-in user. The `distinct()` function is used
+        to ensure duplicate categories (if any) are removed from the result.
+
+        Returns:
+            QuerySet: A queryset containing user-specific `Category` objects.
+
+        Logs:
+            Logs an error message if the queryset fails to retrieve,
+            and returns an empty queryset in such a case.
+        """
         try:
             return Category.objects.filter(tasks__user=self.request.user).distinct()
         except Exception as e:
@@ -98,4 +129,15 @@ class CategoryViewSet(viewsets.ModelViewSet):
             return Category.objects.none()
 
     def get_serializer_context(self):
+        """
+        Provides additional context to the serializer class.
+
+        This method ensures that the current HTTP request object is passed
+        to the serializer via the context. It's particularly useful when
+        you need access to the request user or other request-specific data
+        inside the serializer.
+
+        Returns:
+            dict: A dictionary containing the request object under the "request" key.
+        """
         return {"request": self.request}

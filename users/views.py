@@ -8,7 +8,7 @@ from users.serializers import UserRegistrationSerializer, UserProfileSerializer
 from django.contrib.auth import get_user_model
 from django.http import request
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.authentication import SessionAuthentication
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 
 # Create your views here.
@@ -24,6 +24,7 @@ class UserRegistrationView(generics.CreateAPIView):
     password, and password confirmation. Uses UserRegistrationSerializer
     for input validation.
     """
+
     serializer_class = UserRegistrationSerializer
 
 
@@ -35,11 +36,18 @@ class LoginView(APIView):
     Authenticates the user using Django's built-in authentication system.
     Returns a success message on login or an error message on failure.
     """
+
     def post(self, request):
         """
-        Handle POST request for user login.
+            Handle POST request for user login.
 
-        Validates credentials, logs in the user if valid, and returns a response.
+            Validates credentials, logs in the user if valid, and returns a response.
+            Args:
+            request (Request): The HTTP request object containing login credentials.
+
+        Returns:
+            Response: A success response if login is successful,
+                      or an error response indicating the failure reason.
         """
         try:
             username = request.data.get("username")
@@ -66,11 +74,30 @@ class UserProfileView(RetrieveUpdateAPIView):
 
     Requires the user to be authenticated.
     Allows updates to username, email, and password.
+    Args:
+        request (Request): The HTTP request, expected to contain:
+            - username (str): The desired unique username.
+            - email (str): The user’s email address.
+            - password (str): The user’s password.
+            - password_check (str): Confirmation of the password.
+
+    Returns:
+        Response: HTTP 201 Created with the new user’s data on success,
+                  or HTTP 400 Bad Request with validation errors.
+
+    Raises:
+        serializers.ValidationError: If password and password_check do not match,
+                                      or other validation errors occur
     """
 
     serializer_class = UserProfileSerializer
-    authentication_classes=[SessionAuthentication]
+    authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
     def get_object(self):
+        """_summary_
+
+        Returns:
+            _type_: _description_
+        """
         return self.request.user
