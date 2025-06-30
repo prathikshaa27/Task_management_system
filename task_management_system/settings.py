@@ -25,7 +25,7 @@ SECRET_KEY = "django-insecure-2hfg&o9xfir*=3!b3et8dsk#9#et$-eb(41@#0b@r7tko@(z-3
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'view-localhost']
 
 
 # Application definition
@@ -40,10 +40,12 @@ INSTALLED_APPS = [
     "rest_framework",
     "users",
     "tasks",
-    "django_filters"
+    "django_filters",
+    "rest_framework_simplejwt"
 ]
 
-MIDDLEWARE = [
+
+MIDDLEWARE = [""
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -77,6 +79,7 @@ REST_FRAMEWORK = {
         'django_filters.rest_framework.DjangoFilterBackend',
         'rest_framework.filters.OrderingFilter',
         'rest_framework.filters.SearchFilter',
+        'rest_framework_simplejwt.authentication.JWTAuthentication'
     ]
 }
 
