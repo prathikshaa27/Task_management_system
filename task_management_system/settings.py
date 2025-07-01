@@ -25,7 +25,7 @@ SECRET_KEY = "django-insecure-2hfg&o9xfir*=3!b3et8dsk#9#et$-eb(41@#0b@r7tko@(z-3
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'view-localhost']
+ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -41,7 +41,8 @@ INSTALLED_APPS = [
     "users",
     "tasks",
     "django_filters",
-    "rest_framework_simplejwt"
+    "rest_framework_simplejwt",
+    "corsheaders"
 ]
 
 
@@ -52,6 +53,9 @@ MIDDLEWARE = [""
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware"
 ]
 
 ROOT_URLCONF = "task_management_system.urls"
@@ -75,14 +79,19 @@ TEMPLATES = [
 WSGI_APPLICATION = "task_management_system.wsgi.application"
 
 REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny',
+    ],
     'DEFAULT_FILTER_BACKENDS': [
         'django_filters.rest_framework.DjangoFilterBackend',
         'rest_framework.filters.OrderingFilter',
         'rest_framework.filters.SearchFilter',
-        'rest_framework_simplejwt.authentication.JWTAuthentication'
     ]
 }
-
 
 
 # Database
@@ -143,3 +152,21 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 DEFAULT_FROM_EMAIL = 'admin@taskapp.com'
+
+CSRF_TRUSTED_ORIGINS = [
+    "http://127.0.0.1:8000",
+    "http://localhost:8000",
+    "http://localhost:5173",
+]
+CORS_ALLOW_ALL_ORIGINS = True 
+
+CORS_ALLOW_CREDENTIALS = True
+
+APPEND_SLASH=False
+
+CSRF_COOKIE_HTTPONLY = False
+CSRF_COOKIE_SAMESITE = "Lax"
+
+SIMPLE_JWT = {
+    "AUTH_HEADER_TYPES": ("Bearer",),
+}

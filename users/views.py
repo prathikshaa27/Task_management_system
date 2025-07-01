@@ -9,7 +9,9 @@ from django.contrib.auth import get_user_model
 from django.http import request
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
-
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from django.core.exceptions import ValidationError as DjangoValidationError
+from django.contrib.auth.password_validation import validate_password
 
 # Create your views here.
 
@@ -67,6 +69,41 @@ class LoginView(APIView):
         except Exception as e:
             return Response({"error": f"An unexpected error occured:{str(e)}"})
 
+class ChangePasswordView(APIView):
+    """
+    Allows authenticated user to change password.
+    Requires:
+    - new_password
+    - confirm_password
+    """
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+
+    def post(self, request):
+        new_password = request.data.get("new_password")
+        confirm_password = request.data.get("confirm_password")
+
+        if not new_password or not confirm_password:
+            return Response(
+                {"error": "Both new_password and confirm_password are required."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        if new_password != confirm_password:
+            return Response(
+                {"error": "Passwords do not match."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            validate_password(new_password, user=request.user)
+        except DjangoValidationError as e:
+            return Response({"error": e.messages}, status=status.HTTP_400_BAD_REQUEST)
+
+        request.user.set_password(new_password)
+        request.user.save()
+
+        return Response({"message": "Password updated successfully."}, status=status.HTTP_200_OK)
 
 class UserProfileView(RetrieveUpdateAPIView):
     """
@@ -101,3 +138,4 @@ class UserProfileView(RetrieveUpdateAPIView):
             _type_: _description_
         """
         return self.request.user
+

@@ -16,6 +16,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
 
     # to validate password
     def validate(self, data):
+        print("Received data in serializer:", data)
         if data["password"] != data["password_check"]:
             raise serializers.ValidationError(
                 "Passwords you typed does not match please check again"
