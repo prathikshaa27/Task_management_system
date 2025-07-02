@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { changePassword } from "../services/auth"; 
+import { changePassword ,refreshAccessToken} from "../../services/auth"; 
 
 export default function ChangePassword() {
   const [newPassword, setNewPassword] = useState("");
@@ -15,6 +15,7 @@ export default function ChangePassword() {
     setError("");
 
     try {
+      await refreshAccessToken();
       const res = await changePassword({
         new_password: newPassword,
         confirm_password: confirmPassword,

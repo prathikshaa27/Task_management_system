@@ -2,9 +2,11 @@ import React, { useState } from "react";
 import { useNavigate ,Link} from "react-router-dom";
 import { loginUser } from "../../services/auth";
 import signup_image from "../../assets/images/signup_image.jpg";
+import { useAuth } from "../../context/AuthContext";
 
 export default function Login() {
   const navigate = useNavigate();
+  const{login} = useAuth();
   const [formData, setFormData] = useState({
     username: "",
     password: "",
@@ -22,29 +24,30 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await loginUser(formData);
-      localStorage.setItem("access", res.access);
-      localStorage.setItem("refresh", res.refresh);
-      setSuccess("Login successful! Redirecting...");
-      setTimeout(() => navigate("/dashboard"), 2000);
+      const isLoggedIn = await login(formData);
+      if (isLoggedIn) {
+        setSuccess("Login successful! Redirecting...");
+        setTimeout(() => navigate("/dashboard"), 1000);
+      }
     } catch (err) {
+      console.error(err);
       setError("Invalid username or password.");
     }
   };
 
   return (
     <div
-      className="d-flex align-items-center justify-content-center"
-      style={{
-        height: "100vh",
-        width: "100vw",
-        backgroundImage: `url(${signup_image})`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundRepeat: "no-repeat",
-        overflow: "hidden",
-      }}
-    >
+      className="position-fixed top-0 start-0 w-100 h-100 d-flex flex-column justify-content-center align-items-center"
+            style={{
+              backgroundImage: `url(${signup_image})`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              backgroundRepeat: "no-repeat",
+              backgroundAttachment: "fixed",
+              minHeight: "100vh",
+              minWidth: "100vw"
+            }}
+          >
       <div
         className="card p-4 shadow-lg"
         style={{

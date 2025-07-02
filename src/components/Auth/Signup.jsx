@@ -38,20 +38,17 @@ export default function Signup() {
 
   return (
     <div
-  className="d-flex align-items-center justify-content-center"
-  style={{
-    height: "100vh",
-    width: "100vw",
-    margin:0,
-    padding:0,
-    backgroundImage: `url(${signup_image})`,
-    backgroundSize: "cover",
-    backgroundPosition: "center",
-    backgroundRepeat: "no-repeat",
-    overflow: "hidden",
-  }}
->
-
+    className="position-fixed top-0 start-0 w-100 h-100 d-flex flex-column justify-content-center align-items-center"
+          style={{
+            backgroundImage: `url(${signup_image})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            backgroundRepeat: "no-repeat",
+            backgroundAttachment: "fixed",
+            minHeight: "100vh",
+            minWidth: "100vw"
+          }}
+        > 
       <div className="card p-4 shadow-lg" style={{ width: "100%", maxWidth: "400px", borderRadius: "1rem", backgroundColor: "rgba(255, 255, 255, 0.95)" }}>
         <h2 className="text-center mb-4">Create Account</h2>
 

@@ -1,7 +1,7 @@
 import {createContext,useContext,useState, Children } from "react";
 import { loginUser,signupUser } from "../services/auth";
 import { jwtDecode } from "jwt-decode";
-import { useNavigate } from "react-router-dom";
+
 
 
 //creates the context
@@ -12,19 +12,17 @@ export const AuthProvider = ({children}) => {
         return token?jwtDecode(token):null
     });
 
-const navigate = useNavigate();
-
 const login = async(credentials) => {
     const{access,refresh} = await loginUser(credentials)
     localStorage.setItem("accessToken",access);
     localStorage.setItem("refreshToken", refresh);
     setUser(jwtDecode(access));
-    navigate('/dashboard')
+    return true;
 };
 
 const signup = async(data)=>{
     await signupUser(data)
-    navigate('/login')
+    return true;
 };
 return(
     <AuthContext.Provider value={{user,login,signup}}>
