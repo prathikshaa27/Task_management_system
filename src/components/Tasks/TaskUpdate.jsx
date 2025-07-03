@@ -11,7 +11,7 @@ export default function TaskUpdate(){
     useEffect(()=>{
         const load = async()=>{
             const allTasks = await fetchTasks();
-            const task = allTasks.find(t=>t.id ==== parseInt(id));
+            const task = allTasks.find(t=>t.id === parseInt(id));
             setInitialData(task)
         };
         load();
@@ -19,7 +19,7 @@ export default function TaskUpdate(){
 
     const handleUpdate = async(data)=>{
         await updateTask(id,data);
-        navigate("/tasks");
+        navigate("/dashboard");
     };
     return(
         <div className="container py-5">

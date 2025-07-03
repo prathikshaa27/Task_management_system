@@ -7,7 +7,7 @@ export default function TaskCreate(){
     const navigate = useNavigate();
     const handleCreate = async(data)=>{
         await createTask(data);
-        navigate("/tasks")
+        navigate("/dashboard")
     };
     return(
         <div className="container py-5">

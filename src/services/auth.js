@@ -33,3 +33,10 @@ export const changePassword = async ({ new_password, confirm_password }) => {
 
   return response.data;
 };
+
+export const updateUserProfile = async ({ username, email, password }) => {
+  const data = { username, email };
+  if (password) data.password = password;
+  const response = await api.put("view/update/profile", data);
+  return response.data;
+};

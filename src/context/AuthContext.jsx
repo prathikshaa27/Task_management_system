@@ -8,14 +8,14 @@ import { jwtDecode } from "jwt-decode";
 const AuthContext = createContext();
 export const AuthProvider = ({children}) => {
     const[user,setUser] = useState(()=>{
-        const token = localStorage.getItem("accessToken");
+        const token = localStorage.getItem("access");
         return token?jwtDecode(token):null
     });
 
 const login = async(credentials) => {
     const{access,refresh} = await loginUser(credentials)
-    localStorage.setItem("accessToken",access);
-    localStorage.setItem("refreshToken", refresh);
+    localStorage.setItem("access",access);
+    localStorage.setItem("refresh", refresh);
     setUser(jwtDecode(access));
     return true;
 };

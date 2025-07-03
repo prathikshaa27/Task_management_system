@@ -22,7 +22,7 @@ export default function TaskForm({initialData={},onsubmit,isEdit=false}){
         try{
             await onsubmit(formData);
         }
-        catch(err){
+        catch{
             setError("Failed to submit. Please try again");
         }
     };
@@ -53,7 +53,7 @@ export default function TaskForm({initialData={},onsubmit,isEdit=false}){
             </div>
             <div className="mb-3">
                 <label className="form-label">Status</label>
-                <select name="priority" className="form-select" value={formData.priority} onChange={handleChange}>
+                <select name="status" className="form-select" value={formData.status} onChange={handleChange}>
                     <option>Pending</option>
                     <option>In Progress</option>
                     <option>Completed</option>
