@@ -57,7 +57,12 @@ export default function Login() {
           backgroundColor: "rgba(255, 255, 255, 0.95)",
         }}
       >
-        <h2 className="text-center mb-4">Welcome Back</h2>
+       <h2 className="text-center mb-4">
+  {success 
+    ? `Welcome back, ${formData.username}!` 
+    : "Welcome Back"}
+</h2>
+
 
         {error && <div className="alert alert-danger">{error}</div>}
         {success && <div className="alert alert-success">{success}</div>}

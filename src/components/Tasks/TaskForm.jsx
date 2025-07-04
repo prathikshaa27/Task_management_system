@@ -1,4 +1,5 @@
 import React,{useState,useEffect} from "react";
+import {fetchCategories} from "../../services/task"
 
 export default function TaskForm({initialData={},onsubmit,isEdit=false}){
 
@@ -12,11 +13,39 @@ export default function TaskForm({initialData={},onsubmit,isEdit=false}){
         ...initialData
     });
     const[error,setError] = useState("");
+    const [categories, setCategories] = useState([]);
+
+   useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const data = await fetchCategories();
+        setCategories(data);
+      } catch (err) {
+        console.error("Failed to load categories", err);
+      }
+    };
+    loadCategories();
+  }, []);
     const handleChange = (e) =>{
         const{name,value} = e.target;
         setFormData(prev=>({...prev,[name]:value}));
         setError("");
     };
+      const handleCheckboxChange = (e) => {
+    const categoryId = parseInt(e.target.value);
+    if (e.target.checked) {
+      setFormData((prev) => ({
+        ...prev,
+        category: [...prev.category, categoryId],
+      }));
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        category: prev.category.filter((id) => id !== categoryId),
+      }));
+    }
+  };
+
     const handleSubmit = async(e) =>{
         e.preventDefault();
         try{
@@ -59,6 +88,31 @@ export default function TaskForm({initialData={},onsubmit,isEdit=false}){
                     <option>Completed</option>
                 </select>
                 </div>
+                <div className="mb-4">
+        <label className="form-label">Categories</label>
+        {categories.length === 0 ? (
+          <p className="text-muted">No categories available</p>
+        ) : (
+          <div className="d-flex flex-wrap gap-4">
+            {categories.map((cat) => (
+              <div className="form-check" key={cat.id}>
+                <input
+                  className="form-check-input"
+                  type="checkbox"
+                  value={cat.id}
+                  id={`cat-${cat.id}`}
+                  checked={formData.category.includes(cat.id)}
+                  onChange={handleCheckboxChange}
+                />
+                <label className="form-check-label" htmlFor={`cat-${cat.id}`}>
+                  {cat.name}
+                </label>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+                
                 <button type="submit" className="btn btn-primary w-100">
                     {isEdit ? "Update" : "Create"} 
                 </button>

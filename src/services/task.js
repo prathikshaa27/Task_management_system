@@ -22,3 +22,13 @@ export const deleteTasks = async(taskId) =>{
   return response.data
 };
 
+export const fetchCategories = async() =>{
+  const response = await api.get("categories/")
+  return response.data
+};
+
+export const fetchTaskNotifications = async() =>{
+  const response = await api.get("tasks/notifications/");
+  return response.data
+}
+

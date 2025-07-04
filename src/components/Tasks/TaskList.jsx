@@ -1,6 +1,7 @@
 import React,{useEffect,useState} from "react"
-import { deleteTasks, fetchTasks } from "../../services/task"
+import { deleteTasks, fetchTaskNotifications, fetchTasks } from "../../services/task"
 import { Link } from "react-router-dom"
+import { badgeClassMap } from "../../utils/priorityUtils";
 
 export default function TaskList(){
     const[tasks,setTasks] = useState([]);
@@ -12,6 +13,19 @@ export default function TaskList(){
         ordering:""
     });
     const[categoies,setCategories] = useState("");
+    const[notifications,setNotifications] = useState([]);
+    useEffect(()=>{
+        const loadNotifications = async()=>{
+            try{
+                const data = await fetchTaskNotifications();
+                setNotifications(data);
+            }catch(err){
+                console.error("Failed to fetch the tasks",err)
+            }
+        };
+        loadNotifications();
+    },[]);
+    
     const loadTasks = async() =>{
         try{
             const data = await fetchTasks(filters);
@@ -45,19 +59,39 @@ export default function TaskList(){
     }));
   };
 
+  function getPriorityBadgeClass(priority){
+    return badgeClassMap[priority]||"bg-secondary";
+  }
+
+  const isOverdue = (dueDate)=>{
+    return new Date(dueDate) < new Date();
+  };
+ 
     return(
         <div className="container py-5">
+            {notifications.length > 0 && (
+  <div className="alert alert-warning">
+    <strong>Reminder!</strong> You have {notifications.length} task{notifications.length > 1 && 's'} due soon:
+    <ul>
+      {notifications.map((task) => (
+        <li key={task.id}>
+          <strong>{task.title}</strong> — due on <em>{task.due_date}</em>
+        </li>
+      ))}
+    </ul>
+  </div>
+)}
             <h2 className="mb-4">My Tasks</h2>
             <div className="row mb-3">
-                <div className="col md-3">
+                <div className="col-md-3">
                     <input type="text" className="form-control" placeholder="search tasks" name="search" value={filters.search} onChange={handleChange}/>
                 </div>
-                <div className="col md-2">
+                <div className="col-md-2">
                     <select className="form-select" name="status" value={filters.status} onChange={handleChange}>
                         <option value="">All Status</option>
-                        <option>Pending</option>
-                        <option>In progress</option>
-                        <option>Completed</option>
+                        <option value="Pending">Pending</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="Completed">Completed</option>
                     </select>
                 </div>
                 <div className="col md-2">
@@ -84,39 +118,62 @@ export default function TaskList(){
             {tasks.length === 0?(
                 <p>No tasks found</p>
             ):(
-                <div className="table-responsive">
-                    <table className="table table-bordered table-hover">
-                        <thead className="table-dark">
-                            <tr>
-                                <th>Title</th>
-                                <th>Priority</th>
-                                <th>Due Date</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {tasks.map(task=>(
-                                <tr key={task.id}>
-                                    <td>{task.title}</td>
-                                    <td>{task.priority}</td>
-                                    <td>{task.due_date}</td>
-                                    <td>{task.status}</td>  
-                                    <td>
-                                        <Link to={`/tasks/update/${task.id}`} className="btn btn-sm btn-primary me-2">
-                                        Edit
-                                        </Link>   
-                                        <button onClick={()=>handleDelete(task.id)} className="btn btn-sm btn-danger">
-                                            Delete
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                        </table>
-                        </div>              
+                <div className="row g-4">
+    {tasks.map((task) => (
+      <div className="col-md-6 col-lg-4" key={task.id}>
+        <div className="card h-100 shadow-sm">
+          <div className="card-body d-flex flex-column">
+            <h5 className="card-title">{task.title}</h5>
+            <p className="card-text">
+              <strong>Status:</strong> {task.status}<br />
+              </p>
+            <p className={`card-text ${isOverdue(task.due_date) ? 'text-danger fw-bold' : ''}`}>
+                <strong>Due Date:</strong>{task.due_date}
+            </p>
+            
+            <div className="mb-2">
+              <strong>Priority:</strong>{" "}
+              <span className={`badge ${getPriorityBadgeClass(task.priority)}`}>
+                {task.priority}
+              </span>
+            </div>
+            <div className="mb-2">
+              <strong>Categories:</strong><br />
+              {task.category_names && task.category_names.length > 0 ? (
+                <ul className="list-inline mb-0">
+                  {task.category_names.map((cat, idx) => (
+                    <li className="list-inline-item" key={idx}>
+                      <span className="badge bg-secondary">{cat}</span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <em className="text-muted">No categories</em>
+              )}
+            </div>
+            <div className="mt-auto">
+              <Link to={`/tasks/${task.id}`} className="btn btn-sm btn-outline-secondary me-2">
+                View
+              </Link>
+              <Link to={`/tasks/update/${task.id}`} className="btn btn-sm btn-outline-primary me-2">
+                Edit
+              </Link>
+              <button
+                onClick={() => handleDelete(task.id)}
+                className="btn btn-sm btn-outline-danger"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    ))}
+  </div>
             )}
             </div>
             </div>
-    );
+);
 }
+
+               

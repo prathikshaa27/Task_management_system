@@ -34,9 +34,14 @@ export const changePassword = async ({ new_password, confirm_password }) => {
   return response.data;
 };
 
-export const updateUserProfile = async ({ username, email, password }) => {
-  const data = { username, email };
-  if (password) data.password = password;
-  const response = await api.put("view/update/profile", data);
+export const fetchUserProfile = async () => {
+  const response = await api.get("users/view/update/profile");
   return response.data;
 };
+
+
+export const updateUserProfile = async (profileData) => {
+  const response = await api.put("users/view/update/profile", profileData);
+  return response.data
+};
+

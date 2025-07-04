@@ -10,7 +10,8 @@ import Dashboard from './components/Tasks/Dashboard'
 import TaskCreate from './components/Tasks/TaskCreate'
 import TaskUpdate from './components/Tasks/TaskUpdate'
 import TaskDetail from './components/Tasks/TaskDetails'
-
+import UpdateProfile from './components/Auth/UpdateProfile'
+import TaskCalendar from './components/Tasks/TaskCalender'
 
 
 function App() {
@@ -25,6 +26,8 @@ function App() {
       <Route path="/tasks/create" element={<PrivateRoute><TaskCreate /></PrivateRoute>} />
       <Route path="/tasks/update/:id" element={<PrivateRoute><TaskUpdate/></PrivateRoute>}/>
       <Route path="/tasks/:id" element={<PrivateRoute><TaskDetail/></PrivateRoute>}/>
+      <Route path="/update-profile" element={<UpdateProfile />} />
+      <Route path="/calendar" element={<TaskCalendar/>}/>
     </Routes>   
   );
 }

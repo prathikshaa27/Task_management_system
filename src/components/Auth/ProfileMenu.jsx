@@ -1,20 +1,41 @@
-import { useState } from "react";
-import { FaUserCircle } from "react-icons/fa";
-import ProfileModal from "./ProfileModal";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { fetchUserProfile } from "../../services/auth";
 
 export default function ProfileMenu() {
-  const [showModal, setShowModal] = useState(false);
+  const navigate = useNavigate();
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const loadProfile = async () => {
+      try {
+        const profile = await fetchUserProfile();
+        setUser(profile);
+      } catch (err) {
+        console.error("Failed to load profile:", err);
+      }
+    };
+    loadProfile();
+  }, []);
 
   return (
-    <div className="absolute top-4 right-6">
+    <div className="d-flex flex-column align-items-center text-center">
       <button
-        onClick={() => setShowModal(true)}
-        className="text-2xl text-gray-700 hover:text-blue-600"
-        title="Edit Profile"
+        onClick={() => navigate("/update-profile")}
+        className="btn btn-light shadow-sm border rounded-circle mb-2 transition hover:scale-105"
+        style={{ width: "3rem", height: "3rem" }}
+        title="Profile"
       >
-        <FaUserCircle />
+        <span className="fs-4">👤</span>
       </button>
-      {showModal && <ProfileModal onClose={() => setShowModal(false)} />}
+      {user ? (
+        <>
+          <strong className="text-dark">{user.username}</strong>
+          <small className="text-muted">Profile Management</small>
+        </>
+      ) : (
+        <small className="text-muted">Loading...</small>
+      )}
     </div>
   );
 }

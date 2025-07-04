@@ -31,7 +31,16 @@ export default function TaskDetail(){
                 <p><strong>Priority: </strong>{task.priority}</p>
                 <p><strong>Status: </strong>{task.status}</p>
                 <p><strong>Due Date: </strong>{task.due_date}</p>
-                <p><strong>Categories: </strong>{task.categories}</p>
+                <p><strong>Categories: </strong>{task.category_names && task.category_names.length > 0 ? (
+    <ul className="list-inline mb-0">
+      {task.category_names.map((name, idx) => (
+        <li key={idx} className="list-inline-item me-2">{name}</li>
+      ))}
+    </ul>
+  ) : (
+    <span className="text-muted">No categories</span>
+  )}
+                </p>
                 <Link to ="/dashboard" className="btn btn-secondary mt-3">← Back to Dashboard</Link>
             </div>
         </div>
