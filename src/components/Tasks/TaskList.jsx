@@ -14,17 +14,30 @@ export default function TaskList(){
     });
     const[categoies,setCategories] = useState("");
     const[notifications,setNotifications] = useState([]);
-    useEffect(()=>{
-        const loadNotifications = async()=>{
-            try{
-                const data = await fetchTaskNotifications();
-                setNotifications(data);
-            }catch(err){
-                console.error("Failed to fetch the tasks",err)
-            }
-        };
-        loadNotifications();
-    },[]);
+    const[showNotifications,setShowNotifications] = useState(true);
+    console.log("Notifications:", notifications);
+    console.log("showNotifications:", setNotifications);
+    useEffect(() => {
+  const loadNotifications = async () => {
+    try {
+      const data = await fetchTaskNotifications();
+      setNotifications(data);
+    } catch (err) {
+      console.error("Failed to fetch the tasks", err);
+    }
+  };
+  loadNotifications();
+}, []);
+  
+    useEffect(() => {
+    const timer = setTimeout(() => {
+        setShowNotifications(false);
+        setNotifications([]);
+    }, 2 * 60 * 1000); 
+
+    return () => clearTimeout(timer);
+}, []);
+
     
     const loadTasks = async() =>{
         try{
@@ -66,16 +79,29 @@ export default function TaskList(){
   const isOverdue = (dueDate)=>{
     return new Date(dueDate) < new Date();
   };
+  const getDueColor = (dueDate) => {
+    const today = new Date();
+    const due = new Date(dueDate);
+    const diffDays = Math.ceil((due - today) / (1000 * 60 * 60 * 24));
+
+    if (diffDays === 1) return "text-danger";     
+    if (diffDays === 2) return "text-warning";    
+    return "";
+};
+
  
     return(
         <div className="container py-5">
-            {notifications.length > 0 && (
+            {showNotifications && notifications.length>0 && (
   <div className="alert alert-warning">
     <strong>Reminder!</strong> You have {notifications.length} task{notifications.length > 1 && 's'} due soon:
-    <ul>
+    <ul className="mb-0">
       {notifications.map((task) => (
         <li key={task.id}>
-          <strong>{task.title}</strong> — due on <em>{task.due_date}</em>
+          <strong>{task.title}</strong> — 
+          <span className={`ms-1 fw-semibold ${getDueColor(task.due_date)}`}>
+            Due on <em>{task.due_date}</em>
+          </span>
         </li>
       ))}
     </ul>

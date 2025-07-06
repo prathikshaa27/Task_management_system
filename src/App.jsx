@@ -12,6 +12,9 @@ import TaskUpdate from './components/Tasks/TaskUpdate'
 import TaskDetail from './components/Tasks/TaskDetails'
 import UpdateProfile from './components/Auth/UpdateProfile'
 import TaskCalendar from './components/Tasks/TaskCalender'
+import Header from './components/Layout/Header'
+import Footer from './components/Layout/Footer'
+import MainLayout from './components/Layout/MainLayout'
 
 
 function App() {
@@ -22,12 +25,12 @@ function App() {
       <Route path="/login" element={<Login/>}/>
       <Route path="/signup" element={<Signup/>}/>
       <Route path="/forgot-password" element={<ChangePassword/>} />
-      <Route path="/dashboard" element={<PrivateRoute><Dashboard/></PrivateRoute>}/>
-      <Route path="/tasks/create" element={<PrivateRoute><TaskCreate /></PrivateRoute>} />
-      <Route path="/tasks/update/:id" element={<PrivateRoute><TaskUpdate/></PrivateRoute>}/>
-      <Route path="/tasks/:id" element={<PrivateRoute><TaskDetail/></PrivateRoute>}/>
-      <Route path="/update-profile" element={<UpdateProfile />} />
-      <Route path="/calendar" element={<TaskCalendar/>}/>
+      <Route path="/dashboard" element={<PrivateRoute><MainLayout><Dashboard/></MainLayout></PrivateRoute>}/>
+      <Route path="/tasks/create" element={<PrivateRoute><MainLayout><TaskCreate /></MainLayout></PrivateRoute>} />
+      <Route path="/tasks/update/:id" element={<PrivateRoute><MainLayout><TaskUpdate/></MainLayout></PrivateRoute>}/>
+      <Route path="/tasks/:id" element={<PrivateRoute><MainLayout><TaskDetail/></MainLayout></PrivateRoute>}/>
+      <Route path="/update-profile" element={<MainLayout><UpdateProfile /></MainLayout>} />
+      <Route path="/calendar" element={<PrivateRoute><MainLayout><TaskCalendar/></MainLayout></PrivateRoute>}/>
     </Routes>   
   );
 }
