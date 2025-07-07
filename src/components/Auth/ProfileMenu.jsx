@@ -22,17 +22,14 @@ export default function ProfileMenu() {
     <div className="d-flex align-items-center gap-2">
       <button
         onClick={() => navigate("/update-profile")}
-        className="btn btn-light shadow-sm border rounded-circle"
+        className="btn btn-light shadow-sm border rounded-circle mb-1"
         style={{ width: "3rem", height: "3rem" }}
         title="Profile"
       >
         <span className="fs-4">👤</span>
       </button>
       {user ? (
-        <div className="d-flex flex-column">
-          <strong className="text-dark">{user.username}</strong>
-          <small className="text-muted"></small>
-        </div>
+        <small className="fw-semibold text-white">{user.username}</small>
       ) : (
         <small className="text-muted">Loading...</small>
       )}

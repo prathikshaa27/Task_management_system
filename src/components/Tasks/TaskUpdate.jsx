@@ -10,8 +10,8 @@ export default function TaskUpdate(){
 
     useEffect(()=>{
         const load = async()=>{
-            const allTasks = await fetchTasks();
-            const task = allTasks.find(t=>t.id === parseInt(id));
+            const allTasksResponse = await fetchTasks();
+            const task = allTasksResponse.results.find(t=>t.id === parseInt(id));
             setInitialData(task)
         };
         load();

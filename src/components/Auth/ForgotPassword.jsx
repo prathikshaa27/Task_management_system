@@ -20,8 +20,9 @@ export default function ChangePassword() {
         new_password: newPassword,
         confirm_password: confirmPassword,
       });
-
-      setMessage("Password updated successfully!");
+      if(res.status === 200){
+       setMessage("Password updated successfully!");
+      }
       setTimeout(() => navigate("/login"), 2000);
     } catch (err) {
       const errMsg =

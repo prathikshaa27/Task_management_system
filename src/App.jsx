@@ -1,4 +1,5 @@
 import './App.css'
+import React from 'react'
 import {Routes,Route} from "react-router-dom"
 import Login from './components/Auth/Login'
 import Signup from './components/Auth/Signup'
@@ -12,8 +13,6 @@ import TaskUpdate from './components/Tasks/TaskUpdate'
 import TaskDetail from './components/Tasks/TaskDetails'
 import UpdateProfile from './components/Auth/UpdateProfile'
 import TaskCalendar from './components/Tasks/TaskCalender'
-import Header from './components/Layout/Header'
-import Footer from './components/Layout/Footer'
 import MainLayout from './components/Layout/MainLayout'
 
 

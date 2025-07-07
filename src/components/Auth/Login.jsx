@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { useNavigate ,Link} from "react-router-dom";
-import { loginUser } from "../../services/auth";
 import signup_image from "../../assets/images/signup_image.jpg";
 import { useAuth } from "../../context/AuthContext";
 

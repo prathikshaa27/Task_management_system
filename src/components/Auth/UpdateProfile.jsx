@@ -9,12 +9,14 @@ export default function UpdateProfile() {
   });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const[originalData, setoriginalData] = useState(null);
 
   useEffect(() => {
     const loadProfile = async () => {
       try {
         const profile = await fetchUserProfile();
         setFormData({ username: profile.username, email: profile.email, password: "" });
+        setoriginalData({username:profile.usernam, email:profile.email});
       } catch (err) {
         console.error("Failed to load profile:", err);
         setError("Failed to load profile.");
@@ -29,8 +31,23 @@ export default function UpdateProfile() {
     setSuccess("");
   };
 
+  const isFormChanged = ()=>{
+    if(!originalData) return false;
+    return(
+      formData.username!==originalData.username ||
+      formData.email!== originalData.email ||
+      formData.password !== ""
+
+    );
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if(!isFormChanged()){
+      setSuccess("");
+      setError("No changes were made");
+      return;
+    }
     try {
       const dataToSend = {
         username: formData.username,
@@ -41,6 +58,12 @@ export default function UpdateProfile() {
       }
       await updateUserProfile(dataToSend);
       setSuccess("Profile updated successfully!");
+      setError("");
+      setoriginalData({
+        username: formData.username,
+        email : formData.email,
+      });
+      setFormData((prev) => ({...prev,password: ""}));
     } catch (err) {
       const msg = err.response?.data?.error || "Update failed. Try again.";
       setError(msg);

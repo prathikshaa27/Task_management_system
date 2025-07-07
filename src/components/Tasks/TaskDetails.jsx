@@ -12,7 +12,7 @@ export default function TaskDetail(){
         const load = async()=>{
             try{
             const allTasks = await fetchTasks();
-            const foundTasks = allTasks.find((t)=>t.id===parseInt(id));
+            const foundTasks = allTasks.results.find((t)=>t.id===parseInt(id));
             setTask(foundTasks)       
         }
         catch(err){

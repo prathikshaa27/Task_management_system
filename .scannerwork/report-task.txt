@@ -1,0 +1,6 @@
+projectKey=task_management_system
+serverUrl=http://localhost:9005
+serverVersion=25.5.0.107428
+dashboardUrl=http://localhost:9005/dashboard?id=task_management_system
+ceTaskId=439445cf-cb47-4ae1-8410-35461311f4d3
+ceTaskUrl=http://localhost:9005/api/ce/task?id=439445cf-cb47-4ae1-8410-35461311f4d3

@@ -55,9 +55,10 @@ export default function TaskForm({initialData={},onsubmit,isEdit=false}){
             setError("Failed to submit. Please try again");
         }
     };
+    console.log("Categories from backend:", categories);
     return(
-        <form onSubmit={handleSubmit} className="card p04 shadow">
-            <h4 className="mb-4">{isEdit ? "update Task" : "Create Task"}</h4>
+        <form onSubmit={handleSubmit} className="card shadow p-4 w-100 mx-auto"style={{maxWidth:"600px"}}>
+            <h4 className="mb-4 text-center">{isEdit ? "update Task" : "Create Task"}</h4>
             {error && <div className="alert alert-danger">{error}</div>}
 
             <div className="mb-3">
@@ -93,9 +94,9 @@ export default function TaskForm({initialData={},onsubmit,isEdit=false}){
         {categories.length === 0 ? (
           <p className="text-muted">No categories available</p>
         ) : (
-          <div className="d-flex flex-wrap gap-4">
+          <div className="d-flex flex-wrap gap-3">
             {categories.map((cat) => (
-              <div className="form-check" key={cat.id}>
+              <div className="form-check me-3" key={cat.id}>
                 <input
                   className="form-check-input"
                   type="checkbox"
@@ -113,7 +114,7 @@ export default function TaskForm({initialData={},onsubmit,isEdit=false}){
         )}
       </div>
                 
-                <button type="submit" className="btn btn-primary w-100">
+                <button type="submit" className="btn btn-primary w-100 fw-bold">
                     {isEdit ? "Update" : "Create"} 
                 </button>
         </form>

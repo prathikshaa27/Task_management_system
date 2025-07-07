@@ -10,18 +10,23 @@ export default function TaskList(){
         search:"",
         status:"",
         priority:"",
-        ordering:""
+        ordering:"",
+        page: 1,
     });
     const[categoies,setCategories] = useState("");
     const[notifications,setNotifications] = useState([]);
     const[showNotifications,setShowNotifications] = useState(true);
+    const[totalPages,setTotalPages] = useState(1)
     console.log("Notifications:", notifications);
     console.log("showNotifications:", setNotifications);
     useEffect(() => {
   const loadNotifications = async () => {
     try {
       const data = await fetchTaskNotifications();
-      setNotifications(data);
+      const incompleteTasks = data.filter(
+        (task)=> task.status!="Completed"
+      );
+      setNotifications(incompleteTasks);
     } catch (err) {
       console.error("Failed to fetch the tasks", err);
     }
@@ -42,7 +47,9 @@ export default function TaskList(){
     const loadTasks = async() =>{
         try{
             const data = await fetchTasks(filters);
-            setTasks(data)
+            setTasks(data.results);
+            const total = Math.ceil(data.count/10);
+            setTotalPages(total)
         }
         catch(err){
             setError("Failed to load tasks")
@@ -93,12 +100,14 @@ export default function TaskList(){
     return(
         <div className="container py-5">
             {showNotifications && notifications.length>0 && (
-  <div className="alert alert-warning">
+  <div className="alert alert-warning notification-fade" style={{maxHeight:"150px"}}>
     <strong>Reminder!</strong> You have {notifications.length} task{notifications.length > 1 && 's'} due soon:
     <ul className="mb-0">
       {notifications.map((task) => (
         <li key={task.id}>
+          <Link to ={`/tasks/${task.id}`}className="fw-semibold text-decoration-none">
           <strong>{task.title}</strong> — 
+          </Link>{" "}
           <span className={`ms-1 fw-semibold ${getDueColor(task.due_date)}`}>
             Due on <em>{task.due_date}</em>
           </span>
@@ -108,11 +117,11 @@ export default function TaskList(){
   </div>
 )}
             <h2 className="mb-4">My Tasks</h2>
-            <div className="row mb-3">
-                <div className="col-md-3">
+            <div className="row g-3 mb-3">
+                <div className="col-12 col-md-3">
                     <input type="text" className="form-control" placeholder="search tasks" name="search" value={filters.search} onChange={handleChange}/>
                 </div>
-                <div className="col-md-2">
+                <div className="col-6 col-md-2">
                     <select className="form-select" name="status" value={filters.status} onChange={handleChange}>
                         <option value="">All Status</option>
                         <option value="Pending">Pending</option>
@@ -120,7 +129,7 @@ export default function TaskList(){
                         <option value="Completed">Completed</option>
                     </select>
                 </div>
-                <div className="col md-2">
+                <div className="col-6 col-md-2">
                     <select className="form-select" name="priority" value={filters.priority} onChange={handleChange}>
                         <option value="">All Priorities</option>
                         <option>Low</option>
@@ -128,7 +137,7 @@ export default function TaskList(){
                         <option>High</option>
                     </select>
                     </div>
-                <div className="col md-2">
+                <div className="col-6 col-md-2">
                     <select className="form-select" name="ordering" value={filters.ordering} onChange={handleChange}>
                         <option value="">Sort by</option>
                         <option value="priority">Priority ↑</option>
@@ -139,17 +148,19 @@ export default function TaskList(){
             </div>
             {error && <div className="alert alert-danger">{error}</div>}
             <div className="row mb-3"></div>
-            <div className="col"></div>
-            <Link to="/tasks/create" className="btn btn-success mb-3">Add New Task</Link>
+            <div className="col-6 cold-md-3 text-md-end text-start"></div>
+            <Link to="/tasks/create" className="btn btn-success w-100 w-md-auto">Add New Task</Link>
             {tasks.length === 0?(
                 <p>No tasks found</p>
             ):(
+              <>
                 <div className="row g-4">
     {tasks.map((task) => (
       <div className="col-md-6 col-lg-4" key={task.id}>
         <div className="card h-100 shadow-sm">
           <div className="card-body d-flex flex-column">
             <h5 className="card-title">{task.title}</h5>
+            <h6 className="card-title">Description: {task.description}</h6>
             <p className="card-text">
               <strong>Status:</strong> {task.status}<br />
               </p>
@@ -196,9 +207,45 @@ export default function TaskList(){
       </div>
     ))}
   </div>
+  {totalPages > 1 && (
+          <div className="d-flex flex-column flex-md-row justify-content-between align-items-center mt-4 gap-2">
+            <button
+              className="btn btn-outline-primary"
+              disabled={filters.page <= 1}
+              onClick={() =>
+                setFilters((prev) => ({
+                  ...prev,
+                  page: prev.page - 1,
+                }))
+              }
+            >
+              ◀ Previous
+            </button>
+
+            <span className="fw-semibold text-center">
+              Page {filters.page} of {totalPages}
+            </span>
+
+            <button
+              className="btn btn-outline-primary"
+              disabled={filters.page >= totalPages}
+              onClick={() =>
+                setFilters((prev) => ({
+                  ...prev,
+                  page: prev.page + 1,
+                }))
+              }
+            >
+              Next ▶
+            </button>
+          </div>
+        )}
+      </>
+
             )}
             </div>
             </div>
+            
 );
 }
 

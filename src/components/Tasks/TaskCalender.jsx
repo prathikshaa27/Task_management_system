@@ -15,7 +15,7 @@ export default function TaskCalendar() {
     const loadTasks = async () => {
       try {
         const data = await fetchTasks();
-        const mappedEvents = data.map((task) => ({
+        const mappedEvents = data.results.map((task) => ({
           title: task.title,
           date: task.due_date,
           color: getEventColor(task.priority),
