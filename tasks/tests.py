@@ -1,13 +1,13 @@
-from django.test import TestCase
-import pytest
-from tasks.models import Task, Category
-from rest_framework.test import APIClient
-from django.urls import reverse
-from django.contrib.auth import get_user_model
 from datetime import date, timedelta
-from django.core.management import call_command
-from django.core import mail
 
+import pytest
+from django.contrib.auth import get_user_model
+from django.core import mail
+from django.core.management import call_command
+from django.urls import reverse
+from rest_framework.test import APIClient
+
+from tasks.models import Category, Task
 
 # Create your tests here.
 
@@ -153,7 +153,7 @@ def test_sort_task_by_priority(auth_client, multiple_tasks):
 
 
 @pytest.mark.django_db
-def test_sort_task_by_priority(auth_client, multiple_tasks):
+def test_sort_task_by_due_date(auth_client, multiple_tasks):
     url = reverse("task-list")
     response = auth_client.get(url, {"ordering": "due_date"})
     assert response.status_code == 200

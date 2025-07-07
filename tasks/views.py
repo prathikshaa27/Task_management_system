@@ -1,11 +1,16 @@
-from rest_framework import viewsets, permissions
-from tasks.models import Task, Category
-from tasks.serializers import TaskSerializer, CategorySerializer
-from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters
-from rest_framework import serializers
-from rest_framework_simplejwt.authentication import JWTAuthentication
 import logging
+from datetime import timedelta
+
+from django.utils import timezone
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters, serializers, viewsets
+from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework_simplejwt.authentication import JWTAuthentication
+
+from tasks.models import Category, Task
+from tasks.serializers import CategorySerializer, TaskSerializer
 
 logger = logging.getLogger(__name__)
 
@@ -21,7 +26,9 @@ class TaskViewSet(viewsets.ModelViewSet):
     """
 
     serializer_class = TaskSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    queryset = Task.objects.all()
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
 
     filter_backends = [
         DjangoFilterBackend,
@@ -33,15 +40,14 @@ class TaskViewSet(viewsets.ModelViewSet):
     search_fields = ["title", "category__name"]
 
     def get_queryset(self):
-        """_summary_
+        """
+        Returns a queryset of tasks that belong to the authenticated user.
+
+        Filters the Task model to only include tasks created by the current user.
+        Logs and returns an empty queryset if an error occurs during retrieval.
 
         Returns:
-            _type_: _description_
-        """
-        """
-        Returns queryset of tasks that belong to the authenticated user.
-
-        Handles any exceptions during fetching with logging and returns an empty queryset.
+         QuerySet: A queryset of the user's tasks.
         """
         try:
             return Task.objects.filter(user=self.request.user)
@@ -94,6 +100,27 @@ class TaskViewSet(viewsets.ModelViewSet):
                 {"error": "Could not update task. Something went wrong."}
             )
 
+    @action(detail=False, methods=["get"], url_path="notifications")
+    def upcoming_tasks(self, request):
+        """
+        Custom action to retrieve tasks with due dates within the next two days.
+
+        Checks for tasks that are due either tomorrow or the day after tomorrow,
+        based on the current date. Useful for sending reminders or notifications.
+
+        Args:
+            request (Request): The HTTP request object.
+
+        Returns:
+            Response: A serialized list of upcoming tasks.
+        """
+        today = timezone.now().date()
+        in_one_day = today + timedelta(days=1)
+        in_two_days = today + timedelta(days=2)
+        tasks = self.get_queryset().filter(due_date__in=[in_one_day, in_two_days])
+        serializer = self.get_serializer(tasks, many=True)
+        return Response(serializer.data)
+
 
 class CategoryViewSet(viewsets.ModelViewSet):
     """
@@ -103,7 +130,8 @@ class CategoryViewSet(viewsets.ModelViewSet):
     """
 
     serializer_class = CategorySerializer
-    permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         """
@@ -121,7 +149,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
             and returns an empty queryset in such a case.
         """
         try:
-            return Category.objects.filter(tasks__user=self.request.user).distinct()
+            return Category.objects.all()
         except Exception as e:
             logger.error(
                 f"Error fetching categories for user {self.request.user}: {str(e)}"

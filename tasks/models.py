@@ -1,5 +1,5 @@
-from django.db import models
 from django.conf import settings
+from django.db import models
 
 
 # Create your models here.
@@ -32,4 +32,3 @@ class Task(models.Model):
     category = models.ManyToManyField(Category, blank=True, related_name="tasks")
     created_at = models.DateField(auto_now_add=True)
     updated_at = models.DateField(auto_now=True)
-   
