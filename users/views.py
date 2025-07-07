@@ -1,17 +1,14 @@
-from django.shortcuts import render
+from django.contrib.auth import get_user_model
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError as DjangoValidationError
 from rest_framework import generics, status
 from rest_framework.generics import RetrieveUpdateAPIView
-from rest_framework.views import APIView
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
-from django.contrib.auth import login, authenticate
-from users.serializers import UserRegistrationSerializer, UserProfileSerializer
-from django.contrib.auth import get_user_model
-from django.http import request
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.views import APIView
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from rest_framework.permissions import IsAuthenticated, AllowAny
-from django.core.exceptions import ValidationError as DjangoValidationError
-from django.contrib.auth.password_validation import validate_password
+
+from users.serializers import UserProfileSerializer, UserRegistrationSerializer
 
 # Create your views here.
 
@@ -28,46 +25,8 @@ class UserRegistrationView(generics.CreateAPIView):
     """
 
     serializer_class = UserRegistrationSerializer
+    permission_classes = [AllowAny]
 
-
-class LoginView(APIView):
-    """
-    API view to log in an existing user.
-
-    Accepts username and password in the request body.
-    Authenticates the user using Django's built-in authentication system.
-    Returns a success message on login or an error message on failure.
-    """
-
-    def post(self, request):
-        """
-            Handle POST request for user login.
-
-            Validates credentials, logs in the user if valid, and returns a response.
-            Args:
-            request (Request): The HTTP request object containing login credentials.
-
-        Returns:
-            Response: A success response if login is successful,
-                      or an error response indicating the failure reason.
-        """
-        try:
-            username = request.data.get("username")
-            password = request.data.get("password")
-            if not username or not password:
-                return Response(
-                    {"error": "Both username and password are required"},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-            check_logged_in_user = authenticate(username=username, password=password)
-            if check_logged_in_user:
-                login(request, check_logged_in_user)
-                return Response({"message": "Login successful"})
-            return Response(
-                {"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED
-            )
-        except Exception as e:
-            return Response({"error": f"An unexpected error occured:{str(e)}"})
 
 class ChangePasswordView(APIView):
     """
@@ -76,23 +35,32 @@ class ChangePasswordView(APIView):
     - new_password
     - confirm_password
     """
+
     permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
 
     def post(self, request):
+        """_summary_
+        Handles POST request to update the authenticated user's password.
+        Args:
+              request(Request): The HTTP request object containing the new and confirm passwords
+
+        Returns:
+             Response: A success message upon password update or an error message
+            with appropriate HTTP status code on validation failure.
+        """
         new_password = request.data.get("new_password")
         confirm_password = request.data.get("confirm_password")
 
         if not new_password or not confirm_password:
             return Response(
                 {"error": "Both new_password and confirm_password are required."},
-                status=status.HTTP_400_BAD_REQUEST
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
         if new_password != confirm_password:
             return Response(
-                {"error": "Passwords do not match."},
-                status=status.HTTP_400_BAD_REQUEST
+                {"error": "Passwords do not match."}, status=status.HTTP_400_BAD_REQUEST
             )
 
         try:
@@ -103,7 +71,10 @@ class ChangePasswordView(APIView):
         request.user.set_password(new_password)
         request.user.save()
 
-        return Response({"message": "Password updated successfully."}, status=status.HTTP_200_OK)
+        return Response(
+            {"message": "Password updated successfully."}, status=status.HTTP_200_OK
+        )
+
 
 class UserProfileView(RetrieveUpdateAPIView):
     """
@@ -132,10 +103,9 @@ class UserProfileView(RetrieveUpdateAPIView):
     permission_classes = [IsAuthenticated]
 
     def get_object(self):
-        """_summary_
+        """Retrieves the user object associated with the current authenticated request.
 
         Returns:
-            _type_: _description_
+            User: The currently authenticated user instance.
         """
         return self.request.user
-

@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from tasks.models import Task, Category
+
+from tasks.models import Category, Task
 
 
 class TaskSummarySerializer(serializers.ModelSerializer):
@@ -25,6 +26,7 @@ class TaskSerializer(serializers.ModelSerializer):
     category = serializers.PrimaryKeyRelatedField(
         queryset=Category.objects.all(), many=True
     )
+    category_names = serializers.SerializerMethodField()
 
     class Meta:
         model = Task
@@ -36,5 +38,9 @@ class TaskSerializer(serializers.ModelSerializer):
             "due_date",
             "status",
             "category",
+            "category_names",
             "created_at",
         ]
+
+    def get_category_names(self, obj):
+        return [cat.name for cat in obj.category.all()]
