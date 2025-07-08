@@ -13,7 +13,6 @@ export default function TaskList(){
         ordering:"",
         page: 1,
     });
-    const[categoies,setCategories] = useState("");
     const[notifications,setNotifications] = useState([]);
     const[showNotifications,setShowNotifications] = useState(true);
     const[totalPages,setTotalPages] = useState(1)
@@ -52,6 +51,7 @@ export default function TaskList(){
             setTotalPages(total)
         }
         catch(err){
+            console.error("Error loading tasks",err)
             setError("Failed to load tasks")
         }
     };
@@ -67,6 +67,7 @@ export default function TaskList(){
                 loadTasks();
             }
             catch(err){
+                console.error("Error deleting tasks", err)
                 setError("Delete failed")
             }
     }
@@ -86,167 +87,168 @@ export default function TaskList(){
   const isOverdue = (dueDate)=>{
     return new Date(dueDate) < new Date();
   };
-  const getDueColor = (dueDate) => {
-    const today = new Date();
-    const due = new Date(dueDate);
-    const diffDays = Math.ceil((due - today) / (1000 * 60 * 60 * 24));
-
-    if (diffDays === 1) return "text-danger";     
-    if (diffDays === 2) return "text-warning";    
-    return "";
-};
-
- 
     return(
-        <div className="container py-5">
-            {showNotifications && notifications.length>0 && (
-  <div className="alert alert-warning notification-fade" style={{maxHeight:"150px"}}>
-    <strong>Reminder!</strong> You have {notifications.length} task{notifications.length > 1 && 's'} due soon:
-    <ul className="mb-0">
-      {notifications.map((task) => (
-        <li key={task.id}>
-          <Link to ={`/tasks/${task.id}`}className="fw-semibold text-decoration-none">
-          <strong>{task.title}</strong> — 
-          </Link>{" "}
-          <span className={`ms-1 fw-semibold ${getDueColor(task.due_date)}`}>
-            Due on <em>{task.due_date}</em>
-          </span>
-        </li>
-      ))}
-    </ul>
-  </div>
-)}
-            <h2 className="mb-4">My Tasks</h2>
-            <div className="row g-3 mb-3">
-                <div className="col-12 col-md-3">
-                    <input type="text" className="form-control" placeholder="search tasks" name="search" value={filters.search} onChange={handleChange}/>
-                </div>
-                <div className="col-6 col-md-2">
-                    <select className="form-select" name="status" value={filters.status} onChange={handleChange}>
-                        <option value="">All Status</option>
-                        <option value="Pending">Pending</option>
-                        <option value="In Progress">In Progress</option>
-                        <option value="Completed">Completed</option>
-                    </select>
-                </div>
-                <div className="col-6 col-md-2">
-                    <select className="form-select" name="priority" value={filters.priority} onChange={handleChange}>
-                        <option value="">All Priorities</option>
-                        <option>Low</option>
-                        <option>Medium</option>
-                        <option>High</option>
-                    </select>
-                    </div>
-                <div className="col-6 col-md-2">
-                    <select className="form-select" name="ordering" value={filters.ordering} onChange={handleChange}>
-                        <option value="">Sort by</option>
-                        <option value="priority">Priority ↑</option>
-                        <option value="-priority">Priority ↓</option>
-                        <option value="due_date">Due Date ↑</option>
-                        <option value="-due_date">Due Date ↓</option>
-                    </select>
-            </div>
-            {error && <div className="alert alert-danger">{error}</div>}
-            <div className="row mb-3"></div>
-            <div className="col-6 cold-md-3 text-md-end text-start"></div>
-            <Link to="/tasks/create" className="btn btn-success w-100 w-md-auto">Add New Task</Link>
-            {tasks.length === 0?(
-                <p>No tasks found</p>
-            ):(
-              <>
-                <div className="row g-4">
-    {tasks.map((task) => (
-      <div className="col-md-6 col-lg-4" key={task.id}>
-        <div className="card h-100 shadow-sm">
-          <div className="card-body d-flex flex-column">
-            <h5 className="card-title">{task.title}</h5>
-            <h6 className="card-title">Description: {task.description}</h6>
-            <p className="card-text">
-              <strong>Status:</strong> {task.status}<br />
-              </p>
-            <p className={`card-text ${isOverdue(task.due_date) ? 'text-danger fw-bold' : ''}`}>
-                <strong>Due Date:</strong>{task.due_date}
+      <div>
+  {showNotifications && notifications.length > 0 && (
+    <div className="mb-4">
+      <div className="alert alert-light border border-warning border-3 rounded shadow-sm">
+        <div className="d-flex align-items-center mb-3">
+          <div
+            className="bg-warning bg-opacity-25 text-warning rounded-circle d-flex align-items-center justify-content-center me-3"
+            style={{ width: "45px", height: "45px" }}
+          >
+            <i className="bi bi-bell-fill fs-4"></i>
+          </div>
+          <div className="flex-grow-1">
+            <h5 className="mb-1 fw-bold text-warning">Upcoming Task Reminders</h5>
+            <p className="mb-0 text-muted small">
+              You have <strong>{notifications.length}</strong> task{notifications.length > 1 ? "s" : ""} due soon. Don’t miss them!
             </p>
-            
-            <div className="mb-2">
-              <strong>Priority:</strong>{" "}
-              <span className={`badge ${getPriorityBadgeClass(task.priority)}`}>
-                {task.priority}
-              </span>
-            </div>
-            <div className="mb-2">
-              <strong>Categories:</strong><br />
-              {task.category_names && task.category_names.length > 0 ? (
-                <ul className="list-inline mb-0">
-                  {task.category_names.map((cat, idx) => (
-                    <li className="list-inline-item" key={idx}>
-                      <span className="badge bg-secondary">{cat}</span>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <em className="text-muted">No categories</em>
-              )}
-            </div>
-            <div className="mt-auto">
-              <Link to={`/tasks/${task.id}`} className="btn btn-sm btn-outline-secondary me-2">
+          </div>
+        </div>
+
+        <ul className="list-group list-group-flush">
+          {notifications.map((task) => (
+            <li
+              key={task.id}
+              className="list-group-item d-flex justify-content-between align-items-center px-0"
+            >
+              <div>
+                <Link
+                  to={`/tasks/${task.id}`}
+                  className="text-decoration-none text-dark fw-semibold"
+                >
+                  <i className="bi bi-check2-circle me-2 text-primary"></i>
+                  {task.title}
+                </Link>
+                <div className="text-muted small ms-4">
+                  Due on <strong className="text-danger">{task.due_date}</strong>
+                </div>
+              </div>
+              <Link
+                to={`/tasks/${task.id}`}
+                className="btn btn-sm btn-outline-primary"
+              >
                 View
               </Link>
-              <Link to={`/tasks/update/${task.id}`} className="btn btn-sm btn-outline-primary me-2">
-                Edit
-              </Link>
-              <button
-                onClick={() => handleDelete(task.id)}
-                className="btn btn-sm btn-outline-danger"
-              >
-                Delete
-              </button>
-            </div>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  )}    
+  <div className="card shadow-sm p-4 mb-4">
+        <div className="row g-3">
+          <div className="col-md-3">
+            <input type="text" className="form-control" placeholder="🔍 Search..." name="search" value={filters.search} onChange={handleChange} />
+          </div>
+          <div className="col-md-2">
+            <select className="form-select" name="status" value={filters.status} onChange={handleChange}>
+              <option value="">All Status</option>
+              <option>Pending</option>
+              <option>In Progress</option>
+              <option>Completed</option>
+            </select>
+          </div>
+          <div className="col-md-2">
+            <select className="form-select" name="priority" value={filters.priority} onChange={handleChange}>
+              <option value="">All Priorities</option>
+              <option>Low</option>
+              <option>Medium</option>
+              <option>High</option>
+            </select>
+          </div>
+          <div className="col-md-2">
+            <select className="form-select" name="ordering" value={filters.ordering} onChange={handleChange}>
+              <option value="">Sort by</option>
+              <option value="priority">Priority ↑</option>
+              <option value="-priority">Priority ↓</option>
+              <option value="due_date">Due Date ↑</option>
+              <option value="-due_date">Due Date ↓</option>
+            </select>
+          </div>
+          <div className="col-md-3 text-end">
+            <Link to="/tasks/create" className="btn btn-success w-100 w-md-auto">
+              <i className="bi bi-plus-circle me-1"></i> Add Task
+            </Link>
           </div>
         </div>
       </div>
-    ))}
-  </div>
-  {totalPages > 1 && (
-          <div className="d-flex flex-column flex-md-row justify-content-between align-items-center mt-4 gap-2">
-            <button
-              className="btn btn-outline-primary"
-              disabled={filters.page <= 1}
-              onClick={() =>
-                setFilters((prev) => ({
-                  ...prev,
-                  page: prev.page - 1,
-                }))
-              }
-            >
-              ◀ Previous
-            </button>
 
-            <span className="fw-semibold text-center">
-              Page {filters.page} of {totalPages}
-            </span>
+      {error && <div className="alert alert-danger">{error}</div>}
 
-            <button
-              className="btn btn-outline-primary"
-              disabled={filters.page >= totalPages}
-              onClick={() =>
-                setFilters((prev) => ({
-                  ...prev,
-                  page: prev.page + 1,
-                }))
-              }
-            >
-              Next ▶
-            </button>
+      {tasks.length === 0 ? (
+        <p className="text-muted text-center">No tasks found.</p>
+      ) : (
+        <>
+          <div className="row g-4">
+            {tasks.map((task) => (
+              <div className="col-md-6 col-lg-4" key={task.id}>
+                <div className="card task-card shadow-sm border-0 h-100 rounded-4 p-3 bg-white">
+                  <div className="card-body d-flex flex-column">
+                    <h5 className="card-title">{task.title}</h5>
+                    <p className="text-muted mb-2">{task.description}</p>
+                    <p className={`mb-1 ${isOverdue(task.due_date) ? "text-danger fw-bold" : ""}`}>
+                      <i className="bi bi-calendar-event me-1"></i> Due: {task.due_date}
+                    </p>
+                      <p className="text-muted mb-2">Status : {task.status}</p>
+                    <div className="mb-2">
+                      <strong>Priority:</strong>{" "}
+                      <span className={`badge ${getPriorityBadgeClass(task.priority)}`}>{task.priority}</span>
+                    </div>
+                    <div className="mb-2">
+                      <strong>Categories:</strong>{" "}
+                      {task.category_names.length > 0 ? (
+                        <ul className="list-inline mb-0">
+                          {task.category_names.map((cat) => (
+                            <li className="list-inline-item" key={cat}>
+                              <span className="badge bg-secondary">{cat}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <em className="text-muted">None</em>
+                      )}
+                    </div>
+                    <div className="mt-auto d-flex justify-content-center align-items-center gap-2 pt-3">
+                      <Link to={`/tasks/${task.id}`} className="btn btn-sm btn-outline-secondary d-flex align-items-center justify-content-center">
+                        <i className="bi bi-eye"></i>
+                      </Link>
+                      <Link to={`/tasks/update/${task.id}`} className="btn btn-sm btn-outline-primary d-flex align-items-center justify-content-center">
+                        <i className="bi bi-pencil"></i>
+                      </Link>
+                      <button onClick={() => handleDelete(task.id)} className="btn btn-sm btn-outline-danger d-flex align-items-center justify-content-center">
+                        <i className="bi bi-trash"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
-        )}
-      </>
-
-            )}
+          {totalPages > 1 && (
+            <div className="d-flex flex-column flex-md-row justify-content-between align-items-center mt-4 gap-2">
+              <button
+                className="btn btn-outline-dark"
+                disabled={filters.page <= 1}
+                onClick={() => setFilters((prev) => ({ ...prev, page: prev.page - 1 }))}
+              >
+                ◀ Previous
+              </button>
+              <span className="fw-semibold text-center">
+                Page {filters.page} of {totalPages}
+              </span>
+              <button
+                className="btn btn-outline-dark"
+                disabled={filters.page >= totalPages}
+                onClick={() => setFilters((prev) => ({ ...prev, page: prev.page + 1 }))}
+              >
+                Next ▶
+              </button>
             </div>
-            </div>
-            
-);
+          )}
+        </>
+      )}
+    </div>
+  );
 }
-
-               

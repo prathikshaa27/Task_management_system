@@ -1,12 +1,16 @@
-import {createContext,useContext,useState, Children } from "react";
+import {createContext,useContext,useMemo,useState } from "react";
 import { loginUser,signupUser } from "../services/auth";
 import { jwtDecode } from "jwt-decode";
+import PropTypes from "prop-types";
 
 
 
 //creates the context
 const AuthContext = createContext();
 export const AuthProvider = ({children}) => {
+    AuthProvider.propTypes={
+        children: PropTypes.node.isRequired
+    }
     const[user,setUser] = useState(()=>{
         const token = localStorage.getItem("access");
         return token?jwtDecode(token):null
@@ -24,10 +28,14 @@ const signup = async(data)=>{
     await signupUser(data)
     return true;
 };
+const authContextValue = useMemo(()=>({
+    user,
+    login,
+    signup,
+}), [user]);
 return(
-    <AuthContext.Provider value={{user,login,signup}}>
-        {children
-        }
+    <AuthContext.Provider value={authContextValue}>
+        {children}
     </AuthContext.Provider>
 )
 };

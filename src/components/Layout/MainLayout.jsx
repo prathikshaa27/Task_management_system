@@ -12,6 +12,6 @@ export default function MainLayout({children}){
         </div>
     );
 }
-MainLayout.PropTypes = {
+MainLayout.propTypes = {
     children: PropTypes.node.isRequired
 };

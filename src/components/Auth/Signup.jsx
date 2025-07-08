@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { signupUser } from "../../services/auth";
-import signup_image from "../../assets/images/signup_image.jpg";
-import { useNavigate } from "react-router-dom";
+import signup_img from "../../assets/images/signup_img.svg";
+import { useNavigate ,Link} from "react-router-dom";
+import {motion} from "framer-motion"
 
 export default function Signup() {
   const navigate = useNavigate();
@@ -38,20 +39,24 @@ export default function Signup() {
 
   return (
     <div
-    className="position-fixed top-0 start-0 w-100 h-100 d-flex flex-column justify-content-center align-items-center"
-          style={{
-            backgroundImage: `url(${signup_image})`,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-            backgroundRepeat: "no-repeat",
-            backgroundAttachment: "fixed",
-            minHeight: "100vh",
-            minWidth: "100vw"
-          }}
-        > 
-      <div className="card p-4 shadow-lg" style={{ width: "100%", maxWidth: "400px", borderRadius: "1rem", backgroundColor: "rgba(255, 255, 255, 0.95)" }}>
-        <h2 className="text-center mb-4">Create Account</h2>
-
+    className="d-flex min-vh-100">
+      <div className="d-none d-md-block col-md-6 bg-light justify-content align-items-center">
+        <img
+          src={signup_img}
+          alt="signup-image"
+          className="img-fluid p-4"
+          style={{maxHeight: "80%", objectFit: "contain"}}
+          />
+         </div>
+      <div className="col-12 col-md-6 d-flex align-items-center justify-content-center p-4 bg-light">
+        <motion.div
+           initial={{opacity: 0, y: 50}}
+           animate={{opacity: 1, y: 0}}
+           transition={{duration: 0.8}}
+           className="w-100"
+           style={{maxWidth:"400px"}}>
+        <h2 className="text-center mb-3 fw-bold">Create Your Account</h2>
+        <p className="text-muted text-center mb-4">Taskify and start managing your tasks like a pro ✨</p>
         {error && <div className="alert alert-danger">{error}</div>}
         {success && <div className="alert alert-success">{success}</div>}
 
@@ -115,7 +120,14 @@ export default function Signup() {
           <button type="submit" className="btn btn-primary w-100">
             Sign Up
           </button>
+          <p className="text-center small">
+            Already have an account/ {" "}
+            <Link to ="/login" className="text-decoration-none">
+            Log in
+            </Link>
+          </p>
         </form>
+        </motion.div>
       </div>
     </div>
   );

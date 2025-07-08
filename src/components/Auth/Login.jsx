@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate ,Link} from "react-router-dom";
-import signup_image from "../../assets/images/signup_image.jpg";
+import login_img from "../../assets/images/login_img.svg";
 import { useAuth } from "../../context/AuthContext";
+import {motion} from "framer-motion";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -33,36 +34,36 @@ export default function Login() {
       setError("Invalid username or password.");
     }
   };
+  console.log("Image source:", login_img);
 
   return (
-    <div
-      className="position-fixed top-0 start-0 w-100 h-100 d-flex flex-column justify-content-center align-items-center"
-            style={{
-              backgroundImage: `url(${signup_image})`,
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-              backgroundRepeat: "no-repeat",
-              backgroundAttachment: "fixed",
-              minHeight: "100vh",
-              minWidth: "100vw"
-            }}
+    <div className="d-flex min-vh-100">
+      <div className="d-none d-md-block col-md-6 bg-light justify-content align-items-center">
+        <motion.div
+          initial={{opacity: 0, x: -40}}
+          animate={{opacity: 1, x: 0}}
+          transition={{duration: 0.6}}
           >
-      <div
-        className="card p-4 shadow-lg"
-        style={{
-          width: "100%",
-          maxWidth: "400px",
-          borderRadius: "1rem",
-          backgroundColor: "rgba(255, 255, 255, 0.95)",
-        }}
-      >
-       <h2 className="text-center mb-4">
-  {success 
-    ? `Welcome back, ${formData.username}!` 
-    : "Welcome Back"}
-</h2>
-
-
+          <img
+          src={login_img}
+          alt="login_image"
+          className="img-fluid p-4"
+          style={{maxHeight: "400px",width:"auto", objectFit:"contain"}}
+          />
+          </motion.div>
+        </div>
+        <div className="col-12 col-md-6 d-flex align-items-center justify-content-center p-4 bg-light">
+          <motion.div
+            initial={{opacity: 0, y: 50}}
+            animate={{opacity: 1, y: 0}}
+            transition={{duration: 0.8}}
+            className="w-100"
+            style={{maxWidth:"400px"}}
+            >
+              <h2 className="text-center mb-3 fw-bold">Welcome Back</h2>
+              <p className="text-muted text-center mb-4">
+                Log in and let the productivity begin!
+              </p>
         {error && <div className="alert alert-danger">{error}</div>}
         {success && <div className="alert alert-success">{success}</div>}
 
@@ -103,7 +104,12 @@ export default function Login() {
           <button type="submit" className="btn btn-primary w-100">
             Log In
           </button>
+          <p className="text-center small mt-3">
+            New user?{" "}
+            <Link to="/signup" className="text-decoration-none">Create an account</Link>
+          </p>
         </form>
+        </motion.div>
       </div>
     </div>
   );

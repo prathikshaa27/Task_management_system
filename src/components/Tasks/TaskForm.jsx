@@ -1,7 +1,14 @@
 import React,{useState,useEffect} from "react";
 import {fetchCategories} from "../../services/task"
+import PropTypes from "prop-types";
+import {motion} from "framer-motion"
 
 export default function TaskForm({initialData={},onsubmit,isEdit=false}){
+    TaskForm.propTypes={
+      initialData:PropTypes.object,
+      onsubmit:PropTypes.func.required,
+      isEdit:PropTypes.bool
+    }
 
     const[formData,setFormData] = useState({
         title: "",
@@ -56,67 +63,126 @@ export default function TaskForm({initialData={},onsubmit,isEdit=false}){
         }
     };
     console.log("Categories from backend:", categories);
-    return(
-        <form onSubmit={handleSubmit} className="card shadow p-4 w-100 mx-auto"style={{maxWidth:"600px"}}>
-            <h4 className="mb-4 text-center">{isEdit ? "update Task" : "Create Task"}</h4>
-            {error && <div className="alert alert-danger">{error}</div>}
+    return (
+  <div className="bg-light py-5 px-3 min-vh-100">
+    <div className="container">
+      <div className="d-flex justify-content-center">
+        <motion.form
+          onSubmit={handleSubmit}
+          className="card shadow-lg border-0 rounded-4 p-4 bg-white w-100"
+          style={{ maxWidth: "600px" }}
+          initial={{ opacity: 0, y: 50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+        >
+          <h4 className="mb-4 text-center fw-bold">
+            {isEdit ? "Update Task ✏️" : "Create Task 📝"}
+          </h4>
 
-            <div className="mb-3">
-                <label className="form-label">Title</label>
-                <input type="text" name="title" className="form-control" value={formData.title} onChange={handleChange} required/>
-            </div>
-            <div className="mb-3">
-                <label className="form-label">Description</label>
-                <textarea name="description" className="form-control" value={formData.description} onChange={handleChange} required/>
-            </div>
-            <div className="mb-3">
-                <label className="form-label">Priority</label>
-                <select name="priority" className="form-select" value={formData.priority} onChange={handleChange}>
-                    <option>Low</option>
-                    <option>Medium</option>
-                    <option>High</option>
-                </select>
-            </div>
-            <div className="mb-3">
-                <label className="form-label">Due Date</label>
-                <input type="date" name="due_date" className="form-control" value={formData.due_date} onChange={handleChange} required/>
-            </div>
-            <div className="mb-3">
-                <label className="form-label">Status</label>
-                <select name="status" className="form-select" value={formData.status} onChange={handleChange}>
-                    <option>Pending</option>
-                    <option>In Progress</option>
-                    <option>Completed</option>
-                </select>
-                </div>
-                <div className="mb-4">
-        <label className="form-label">Categories</label>
-        {categories.length === 0 ? (
-          <p className="text-muted">No categories available</p>
-        ) : (
-          <div className="d-flex flex-wrap gap-3">
-            {categories.map((cat) => (
-              <div className="form-check me-3" key={cat.id}>
-                <input
-                  className="form-check-input"
-                  type="checkbox"
-                  value={cat.id}
-                  id={`cat-${cat.id}`}
-                  checked={formData.category.includes(cat.id)}
-                  onChange={handleCheckboxChange}
-                />
-                <label className="form-check-label" htmlFor={`cat-${cat.id}`}>
-                  {cat.name}
-                </label>
-              </div>
-            ))}
+          {error && <div className="alert alert-danger">{error}</div>}
+
+          <div className="mb-3">
+            <label className="form-label" htmlFor="title">Title</label>
+            <input
+              type="text"
+              id="title"
+              name="title"
+              className="form-control"
+              value={formData.title}
+              onChange={handleChange}
+              required
+            />
           </div>
-        )}
+
+          <div className="mb-3">
+            <label className="form-label" htmlFor="description">Description</label>
+            <textarea
+              id="description"
+              name="description"
+              className="form-control"
+              rows="3"
+              value={formData.description}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
+          <div className="row g-3">
+            <div className="col-md-6">
+              <label className="form-label" htmlFor="priority">Priority</label>
+              <select
+                id="priority"
+                name="priority"
+                className="form-select"
+                value={formData.priority}
+                onChange={handleChange}
+              >
+                <option>Low</option>
+                <option>Medium</option>
+                <option>High</option>
+              </select>
+            </div>
+
+            <div className="col-md-6">
+              <label className="form-label" htmlFor="status">Status</label>
+              <select
+                id="status"
+                name="status"
+                className="form-select"
+                value={formData.status}
+                onChange={handleChange}
+              >
+                <option>Pending</option>
+                <option>In Progress</option>
+                <option>Completed</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="mb-3 mt-3">
+            <label className="form-label" htmlFor="due_date">Due Date</label>
+            <input
+              type="date"
+              id="due_date"
+              name="due_date"
+              className="form-control"
+              value={formData.due_date}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
+          <div className="mb-4">
+            <label className="form-label" htmlFor="categories">Categories</label>
+            {categories.length === 0 ? (
+              <p className="text-muted">No categories available</p>
+            ) : (
+              <div className="d-flex flex-wrap gap-2">
+                {categories.map((cat) => (
+                  <div className="form-check me-3" key={cat.id}>
+                    <input
+                      className="form-check-input"
+                      type="checkbox"
+                      value={cat.id}
+                      id={`cat-${cat.id}`}
+                      checked={formData.category.includes(cat.id)}
+                      onChange={handleCheckboxChange}
+                    />
+                    <label className="form-check-label" htmlFor={`cat-${cat.id}`}>
+                      {cat.name}
+                    </label>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <button type="submit" className="btn btn-success w-100 fw-bold">
+            {isEdit ? "Update Task" : "Create Task"}
+          </button>
+        </motion.form>
       </div>
-                
-                <button type="submit" className="btn btn-primary w-100 fw-bold">
-                    {isEdit ? "Update" : "Create"} 
-                </button>
-        </form>
-    );
+    </div>
+  </div>
+);
 }

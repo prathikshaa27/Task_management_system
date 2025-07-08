@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { changePassword ,refreshAccessToken} from "../../services/auth"; 
+import {motion} from "framer-motion"
 
 export default function ChangePassword() {
   const [newPassword, setNewPassword] = useState("");
@@ -32,9 +33,27 @@ export default function ChangePassword() {
   };
 
   return (
-    <div className="d-flex align-items-center justify-content-center vh-100 bg-light">
-      <div className="card p-4 shadow-lg" style={{ width: "100%", maxWidth: "400px", borderRadius: "1rem" }}>
-        <h3 className="text-center mb-3">Change Password</h3>
+    <div className="d-flex align-items-center justify-content-center min-vh-100"
+      style={{
+        background: "linear-gradient(135deg, #f5f7fa, #c3cfe2)",
+      }}
+      >
+        <motion.div
+          initial={{opacity: 0, scale: 0.95, y: 20}}
+          animate={{opacity: 1, scale: 1,y: 0}}
+          transition={{duration: 0.6}}
+          className="card-shadow-lg p-4"
+          style={{
+            width: "100%",
+            maxWidth: "420px",
+            borderRadius: "1rem",
+            backgroundColor:"#ffffffd9"
+          }}
+          >
+        <h3 className="text-center fw-bold mb-2">Reset Your Password 🔐</h3>
+        <p className="text-muted text-center mb-4 small">
+          Just a few steps away from getting back in!
+        </p>
 
         {error && <div className="alert alert-danger">{error}</div>}
         {message && <div className="alert alert-success">{message}</div>}
@@ -70,7 +89,10 @@ export default function ChangePassword() {
             Update Password
           </button>
         </form>
+        <p className="text-center text-muted mt-3 small">
+          We will help you get back on track 🚀
+        </p>
+        </motion.div>
       </div>
-    </div>
   );
 }
