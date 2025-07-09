@@ -27,6 +27,8 @@ class TaskSerializer(serializers.ModelSerializer):
         queryset=Category.objects.all(), many=True
     )
     category_names = serializers.SerializerMethodField()
+    username = serializers.CharField(source='user.username', read_only=True)
+
 
     class Meta:
         model = Task
@@ -40,6 +42,7 @@ class TaskSerializer(serializers.ModelSerializer):
             "category",
             "category_names",
             "created_at",
+            "username"
         ]
 
     def get_category_names(self, obj):
