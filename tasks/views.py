@@ -8,6 +8,7 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from tasks.permissions import IsOwnerOrAdminOnly
 
 from tasks.models import Category, Task
 from tasks.serializers import CategorySerializer, TaskSerializer
@@ -28,7 +29,7 @@ class TaskViewSet(viewsets.ModelViewSet):
     serializer_class = TaskSerializer
     queryset = Task.objects.all()
     authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated,IsOwnerOrAdminOnly]
 
     filter_backends = [
         DjangoFilterBackend,
@@ -36,12 +37,14 @@ class TaskViewSet(viewsets.ModelViewSet):
         filters.SearchFilter,
     ]
     filterset_fields = ["status", "priority", "due_date"]
-    ordering_fields = ["priority", "due_date"]
+    ordering_fields = ["priority", "due_date","user__username"]
     search_fields = ["title", "category__name"]
 
     def get_queryset(self):
         """
         Returns a queryset of tasks that belong to the authenticated user.
+        Admin: can see all tasks (read-only)
+        User: sees only own tasks
 
         Filters the Task model to only include tasks created by the current user.
         Logs and returns an empty queryset if an error occurs during retrieval.
@@ -50,7 +53,10 @@ class TaskViewSet(viewsets.ModelViewSet):
          QuerySet: A queryset of the user's tasks.
         """
         try:
-            return Task.objects.filter(user=self.request.user)
+            user = self.request.user
+            if hasattr(user,'role') and user.role == 'admin':
+             return Task.objects.all()
+            return Task.objects.filter(user=user)
         except Exception as e:
             logger.error(f"Error fetching tasks for user {self.request.user}: {str(e)}")
             return Task.objects.none()

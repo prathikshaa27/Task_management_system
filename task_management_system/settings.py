@@ -99,6 +99,8 @@ REST_FRAMEWORK = {
 }
 
 
+AUTH_USER_MODEL = 'users.CustomUser'
+
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
