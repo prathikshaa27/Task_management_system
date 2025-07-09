@@ -20,7 +20,13 @@ const login = async(credentials) => {
     const{access,refresh} = await loginUser(credentials)
     localStorage.setItem("access",access);
     localStorage.setItem("refresh", refresh);
-    setUser(jwtDecode(access));
+
+    const decoded = jwtDecode(access);
+    setUser(decoded);
+
+    if(decoded.role){
+        localStorage.setItem("role", decoded.role)
+    }
     return true;
 };
 

@@ -58,3 +58,12 @@
   transform: scale(1.02);
   transition: transform 0.2s ease;
 }
+
+body {
+  overflow-x: hidden;
+}
+
+.no-scroll {
+  overflow: hidden;
+}
+body { overflow-x: hidden; }

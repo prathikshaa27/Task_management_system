@@ -10,35 +10,65 @@ export default function Login() {
   const [formData, setFormData] = useState({
     username: "",
     password: "",
+    role:""
   });
 
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const[fieldErrors, setFieldErrors] = useState({});
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
     setError("");
     setSuccess("");
+    setFieldErrors({});
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const errors = {};
+    if(!formData.username.trim()){
+      errors.username = "Username is required"
+    }
+    if(!formData.password.trim()){
+      errors.password = "Password is required"
+    }
+    if(!formData.role){
+      errors.role="Please sleect a role"
+    }
+    
+    if(Object.keys(errors).length>0){
+      setFieldErrors(errors);
+      return
+    }
     try {
       const isLoggedIn = await login(formData);
       if (isLoggedIn) {
         setSuccess("Login successful! Redirecting...");
-        setTimeout(() => navigate("/dashboard"), 1000);
+        const userRole = formData.role;
+        console.log("Role is", userRole)
+        console.log(formData)
+        setTimeout(() =>  {
+          if(userRole === "admin"){
+            navigate("/admin-dashboard");
+          }else{
+            navigate("/dashboard")
+          }
+        },1000)
       }
     } catch (err) {
       console.error(err);
-      setError("Invalid username or password.");
+      const backendError = err.response?.data.error|| "Invalid username or password";
+      setError(backendError);
     }
   };
   console.log("Image source:", login_img);
 
   return (
     <div className="d-flex min-vh-100">
-      <div className="d-none d-md-block col-md-6 bg-light justify-content align-items-center">
+      <div className="d-none d-md-block col-md-6 bg-light justify-content align-items-center position-relative">
+      
         <motion.div
           initial={{opacity: 0, x: -40}}
           animate={{opacity: 1, x: 0}}
@@ -48,7 +78,12 @@ export default function Login() {
           src={login_img}
           alt="login_image"
           className="img-fluid p-4"
-          style={{maxHeight: "400px",width:"auto", objectFit:"contain"}}
+          style={{
+    maxHeight: "70vh",
+    maxWidth: "85%",
+    objectFit: "contain",
+    filter: "drop-shadow(0 10px 30px rgba(0,0,0,0.1))"
+  }}
           />
           </motion.div>
         </div>
@@ -71,31 +106,52 @@ export default function Login() {
           <div className="form-floating mb-3">
             <input
               type="text"
-              className="form-control"
+              className={`form-control ${fieldErrors.username? "is-invalid": ""}`}
               id="username"
               name="username"
               placeholder="Username"
               value={formData.username}
               onChange={handleChange}
-              required
             />
             <label htmlFor="username">Username</label>
+            {fieldErrors.username && (
+              <div className="invalid-feedback">{fieldErrors.username}</div>
+            )}
           </div>
 
-          <div className="form-floating mb-4">
+          <div className="form-floating mb-3">
             <input
               type="password"
-              className="form-control"
+              className={`form-control ${fieldErrors.password? "is-invalid": ""}`}
               id="password"
               name="password"
               placeholder="Password"
               value={formData.password}
               onChange={handleChange}
-              required
             />
             <label htmlFor="password">Password</label>
-          </div>
-          <div className="mb-3 text-end">
+            {fieldErrors.password && (
+              <div className="invalid-feedback">{fieldErrors.password}</div>
+            )}
+            </div>
+            
+          <div className="form-floating mb-4">
+              <select
+                className={`form-select ${fieldErrors.role?"is-invalid":""}`}
+                name="role"
+                id="role"
+                value={formData.role}
+                onChange={handleChange}
+                >
+                  <option value="">Login as...</option>
+                  <option value="user">User</option>
+                  <option value="admin">Admin</option>
+                </select>
+                <label htmlFor="role">Role</label>
+                {fieldErrors.role &&(<div className="invalid-feedback">{fieldErrors.role}</div>)}
+            </div>
+
+        <div className="mb-3 text-end">
             <Link to="/forgot-password" className="text-decoration-none small text-primary">
               Forgot password?
             </Link>

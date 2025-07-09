@@ -10,11 +10,11 @@ export default function WelcomeScreen(){
          initial ={{opacity: 0, x: "-100vw"}}
          animate ={{opacity: 1, x: 0}}
          transition={{duration: 1}}
-        className="min-vh-100 d-flex justify-cotent-center align-items-center text-white position-relative"
-        style={{
-        backgroundImage: `url(${welcome_img})`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
+         className="vh-100 d-flex justify-content-center align-items-center text-white position-relative"
+         style={{
+         backgroundImage: `url(${welcome_img})`,
+         backgroundSize: "cover",
+         backgroundPosition: "center",
       }}
     >
       <div className="position-absolute top-0 start-0 w-100 h-100 bg-dark opacity-75"></div>
