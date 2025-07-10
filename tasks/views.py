@@ -5,13 +5,17 @@ from django.utils import timezone
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, serializers, viewsets
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated,IsAdminUser
 from rest_framework.response import Response
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from tasks.permissions import IsOwnerOrAdminOnly
 
 from tasks.models import Category, Task
 from tasks.serializers import CategorySerializer, TaskSerializer
+from django.utils.timezone import now,timedelta
+from rest_framework import status
+from django.db.models import Count
+from collections import defaultdict
 
 logger = logging.getLogger(__name__)
 
@@ -175,3 +179,27 @@ class CategoryViewSet(viewsets.ModelViewSet):
             dict: A dictionary containing the request object under the "request" key.
         """
         return {"request": self.request}
+
+class AnalyticsViewSet(viewsets.ViewSet):
+    permission_classes = [IsAdminUser]
+
+    @action(detail=False, methods=['get'], url_path="summary")
+    def analytics_summary(self,request):
+        user = request.user
+        if not hasattr(user,'role') or user.role !='admin':
+            return Response({"detail":"Only admins can access this endpoint"}, status=status.HTTP_403_FORBIDDEN)
+        active_users =(Task.objects.values("user__username").annotate(task_count=Count("id")).order_by("-task_count")[:5])
+
+        today = now().date()
+        daily_tasks = defaultdict(int)
+        for i in range(7):
+            day = today-timedelta(days=i)
+            count = Task.objects.filter(created_at=day).count()
+            daily_tasks[day.strftime("%Y-%m-%d")] = count
+            status_distribution = Task.objects.values("status").annotate(count=Count("id"))
+            return Response({
+                "active_users":list(active_users),
+                "tasks_per_day":dict(daily_tasks),
+                "status_summary":status_distribution
+            }, status=status.HTTP_200_OK)
+      

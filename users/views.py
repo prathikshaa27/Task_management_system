@@ -8,7 +8,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
-from users.serializers import UserProfileSerializer, UserRegistrationSerializer
+from users.serializers import UserProfileSerializer, UserRegistrationSerializer,CustomTokenObtainPairSerializer
+from rest_framework_simplejwt.views import TokenObtainPairView
 
 # Create your views here.
 
@@ -109,3 +110,6 @@ class UserProfileView(RetrieveUpdateAPIView):
             User: The currently authenticated user instance.
         """
         return self.request.user
+
+class CustomTokenObtainPairView(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer
