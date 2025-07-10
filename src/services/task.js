@@ -32,3 +32,7 @@ export const fetchTaskNotifications = async() =>{
   return response.data
 }
 
+export const fetchAnalyticsSummary = async() =>{
+  const response = await api.get("analytics/summary/");
+  return response.data
+}

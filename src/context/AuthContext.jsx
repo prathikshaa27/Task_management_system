@@ -34,10 +34,18 @@ const signup = async(data)=>{
     await signupUser(data)
     return true;
 };
+
+const logout = () =>{
+    localStorage.removeItem("access");
+    localStorage.removeItem("refresh");
+    setUser(null);
+}
 const authContextValue = useMemo(()=>({
     user,
     login,
     signup,
+    logout,
+    role: user?.role || null
 }), [user]);
 return(
     <AuthContext.Provider value={authContextValue}>

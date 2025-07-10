@@ -92,16 +92,16 @@ export default function TaskList(){
   {showNotifications && notifications.length > 0 && (
     <div className="mb-4">
       <div className="alert alert-light border border-warning border-3 rounded shadow-sm">
-        <div className="d-flex align-items-center mb-3">
+        <div className="d-flex flex-column align-items-center mb-3 text-center">
           <div
-            className="bg-warning bg-opacity-25 text-warning rounded-circle d-flex align-items-center justify-content-center me-3"
+            className="bg-warning bg-opacity-25 text-warning rounded-circle d-flex align-items-center justify-content-center mb-3"
             style={{ width: "45px", height: "45px" }}
           >
             <i className="bi bi-bell-fill fs-4"></i>
           </div>
           <div className="flex-grow-1">
-            <h5 className="mb-1 fw-bold text-warning">Upcoming Task Reminders</h5>
-            <p className="mb-0 text-muted small">
+            <h5 className="mb-1 fw-bold text-warning text-center">Upcoming Task Reminders</h5>
+            <p className="mb-0 text-muted small text-center">
               You have <strong>{notifications.length}</strong> task{notifications.length > 1 ? "s" : ""} due soon. Don’t miss them!
             </p>
           </div>
