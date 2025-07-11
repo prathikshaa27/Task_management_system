@@ -28,6 +28,8 @@ class TaskSerializer(serializers.ModelSerializer):
     )
     category_names = serializers.SerializerMethodField()
     username = serializers.CharField(source='user.username', read_only=True)
+    assignee_id = serializers.IntegerField(write_only=True)
+    assignee_name = serializers.CharField(source="user.username",read_only=True)
 
 
     class Meta:
@@ -42,8 +44,16 @@ class TaskSerializer(serializers.ModelSerializer):
             "category",
             "category_names",
             "created_at",
-            "username"
+            "username",
+            "assignee_id",
+            "assignee_name"
         ]
 
     def get_category_names(self, obj):
         return [cat.name for cat in obj.category.all()]
+    def create(self, validated_data):
+        category_data = validated_data.pop('category',[])
+        validated_data.pop("assignee_id", None)
+        task = Task.objects.create(**validated_data)
+        task.category.set(category_data)
+        return task

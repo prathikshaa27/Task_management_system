@@ -3,13 +3,15 @@ from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError as DjangoValidationError
 from rest_framework import generics, status
 from rest_framework.generics import RetrieveUpdateAPIView
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated,IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
-from users.serializers import UserProfileSerializer, UserRegistrationSerializer,CustomTokenObtainPairSerializer
+from users.serializers import UserProfileSerializer, UserRegistrationSerializer,CustomTokenObtainPairSerializer,UserSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework import viewsets
+from users.models import CustomUser
 
 # Create your views here.
 
@@ -113,3 +115,13 @@ class UserProfileView(RetrieveUpdateAPIView):
 
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
+
+class UserListView(generics.ListAPIView):
+    queryset = CustomUser.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [IsAdminUser]
+
+class UserRoleUpdateView(generics.UpdateAPIView):
+    queryset = CustomUser.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [IsAdminUser]

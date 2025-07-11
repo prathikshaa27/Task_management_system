@@ -16,8 +16,14 @@ from django.utils.timezone import now,timedelta
 from rest_framework import status
 from django.db.models import Count
 from collections import defaultdict
+from django.contrib.auth import get_user_model
+from tasks.utils import can_assign_tasks
+from users.models import CustomUser
+from rest_framework import status
 
 logger = logging.getLogger(__name__)
+
+User = get_user_model()
 
 
 class TaskViewSet(viewsets.ModelViewSet):
@@ -83,10 +89,7 @@ class TaskViewSet(viewsets.ModelViewSet):
             if "category" in self.request.data:
                 task.category.set(self.request.data.get("category", []))
         except Exception as e:
-            logger.error(f"Error while creating task: {str(e)}")
-            raise serializers.ValidationError(
-                {"error": "Could not create task. Please check the data."}
-            )
+            raise serializers.ValidationError({"error":"Task creation failed" + str(e)})
 
     def perform_update(self, serializer):
         """
@@ -203,3 +206,28 @@ class AnalyticsViewSet(viewsets.ViewSet):
                 "status_summary":status_distribution
             }, status=status.HTTP_200_OK)
       
+class TaskAssignViewSet(viewsets.ViewSet):
+    permission_classes = [IsAuthenticated]
+
+    def create(self,request):
+        try:
+            assigner = request.user
+            assignee_id = request.data.get("assignee_id")
+            assignee = CustomUser.objects.get(id=assignee_id)
+            print("User:", request.user)
+            print("Is authenticated:", request.user.is_authenticated)
+            print("Role:", getattr(request.user, "role", "NO ROLE"))
+            
+
+
+            if not can_assign_tasks(assigner,assignee):
+                return Response({"error":"Permission denied to assign task to this user"}, status=status.HTTP_403_FORBIDDEN)
+            serializer = TaskSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save(user=assignee)
+                return Response(serializer.data,status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except CustomUser.DoesNotExist:
+            return Response({"error": "Assignee user not found"}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({"error":f"Task assignment failed: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
