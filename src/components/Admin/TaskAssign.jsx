@@ -1,0 +1,163 @@
+import React, { useState, useEffect } from "react";
+import { assignTask } from "../../services/task";
+import { getUsers } from "../../services/auth";
+import { useAuth } from "../../context/AuthContext"
+import { Form, Button, Container, Alert, Spinner } from "react-bootstrap";
+
+export default function TaskAssign() {
+  const { user, role } = useAuth();
+  const [users, setUsers] = useState([]);
+  const [formData, setFormData] = useState({
+    title: "",
+    description: "",
+    due_date: "",
+    assignee_id: "",
+    priority: "Medium",
+  });
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+  const [loadingUsers, setLoadingUsers] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    const loadUsers = async () => {
+      try {
+        const allUsers = await getUsers();
+
+        let filtered = [];
+        if (role === "lead") {
+          filtered = allUsers.filter((u) => u.role === "senior" || u.role === "junior");
+        } else if (role === "senior") {
+          filtered = allUsers.filter((u) => u.role === "junior");
+        }
+        setUsers(filtered);
+      } catch (err) {
+        console.error("Failed to load users", err);
+        setError("Could not fetch users.");
+      } finally {
+        setLoadingUsers(false);
+      }
+    };
+    loadUsers();
+  }, [role]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setSubmitting(true);
+    setError("");
+    setMessage("");
+
+    try {
+      await assignTask(formData);
+      setMessage("Task assigned successfully!");
+      setFormData({
+        title: "",
+        description: "",
+        due_date: "",
+        assignee_id: "",
+        priority: "Medium",
+      });
+    } catch (err) {
+      console.error("Assign failed", err);
+      setError("Failed to assign task.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <Container className="mt-4">
+      <h3 className="fw-bold text-primary text-center mb-4">Assign a Task</h3>
+
+      {error && <Alert variant="danger">{error}</Alert>}
+      {message && <Alert variant="success">{message}</Alert>}
+
+      {loadingUsers ? (
+        <div className="text-center">
+          <Spinner animation="border" />
+        </div>
+      ) : users.length === 0 ? (
+        <p className="text-muted text-center">No eligible users to assign tasks to.</p>
+      ) : (
+        <Form onSubmit={handleSubmit} className="shadow p-4 rounded bg-white">
+          <Form.Group className="mb-3">
+            <Form.Label>Task Title</Form.Label>
+            <Form.Control
+              type="text"
+              name="title"
+              value={formData.title}
+              onChange={handleChange}
+              required
+              placeholder="Enter task title"
+            />
+          </Form.Group>
+
+          <Form.Group className="mb-3">
+            <Form.Label>Description</Form.Label>
+            <Form.Control
+              as="textarea"
+              name="description"
+              value={formData.description}
+              onChange={handleChange}
+              rows={3}
+              required
+              placeholder="Enter task description"
+            />
+          </Form.Group>
+
+          <Form.Group className="mb-3">
+            <Form.Label>Due Date</Form.Label>
+            <Form.Control
+              type="date"
+              name="due_date"
+              value={formData.due_date}
+              onChange={handleChange}
+              required
+            />
+          </Form.Group>
+
+          <Form.Group className="mb-3">
+            <Form.Label>Assign To</Form.Label>
+            <Form.Select
+              name="assignee_id"
+              value={formData.assignee_id}
+              onChange={handleChange}
+              required
+            >
+              <option value="">-- Select User --</option>
+              {users.map((u) => (
+                <option key={u.id} value={u.id}>
+                  {u.username} ({u.role})
+                </option>
+              ))}
+            </Form.Select>
+          </Form.Group>
+
+          <Form.Group className="mb-4">
+            <Form.Label>Priority</Form.Label>
+            <Form.Select
+              name="priority"
+              value={formData.priority}
+              onChange={handleChange}
+            >
+              <option>Low</option>
+              <option>Medium</option>
+              <option>High</option>
+            </Form.Select>
+          </Form.Group>
+
+          <div className="text-center">
+            <Button type="submit" variant="primary" disabled={submitting}>
+              {submitting ? "Assigning..." : "Assign Task"}
+            </Button>
+          </div>
+        </Form>
+      )}
+    </Container>
+  );
+}

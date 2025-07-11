@@ -13,7 +13,7 @@ export default function Header(){
   }
     return (
     <header className="bg-info bg-opacity-10 py-3 border-bottom">
-      <div className="container-fluid d-flex flex-wrap justify-content-between align-items-center px-3">
+      <div className="container-fluid d-flex justify-content-between align-items-center flex-wrap px-3">
         <Link
           to={homeLink}
           className="text-decoration-none d-flex align-items-center gap-2"

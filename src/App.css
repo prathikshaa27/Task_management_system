@@ -67,3 +67,53 @@ body {
   overflow: hidden;
 }
 body { overflow-x: hidden; }
+@media (max-width: 768px) {
+  header .container-fluid {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  header .me-4 {
+    margin-right: 0 !important;
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  header .d-flex.align-items-center.gap-3 {
+    flex-wrap: wrap;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .task-card .btn {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.8rem;
+  }
+
+  .task-card {
+    padding: 1rem !important;
+  }
+
+  .card.shadow-sm.p-4.mb-4 .row.g-3 > div {
+    margin-bottom: 0.75rem;
+  }
+
+  .dashboard-banner h2 {
+    font-size: 1.4rem;
+  }
+
+  .dashboard-banner p {
+    font-size: 0.95rem;
+  }
+
+  .btn.w-100.w-md-auto {
+    width: 100% !important;
+  }
+}
+
+@media (max-width: 576px) {
+  footer .text-muted {
+    font-size: 0.8rem;
+  }
+}

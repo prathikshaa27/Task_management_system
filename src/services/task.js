@@ -36,3 +36,8 @@ export const fetchAnalyticsSummary = async() =>{
   const response = await api.get("analytics/summary/");
   return response.data
 }
+
+export const assignTask = async(taskData)=>{
+  const response = await api.post("assign-task/", taskData);
+  return response.data;
+}

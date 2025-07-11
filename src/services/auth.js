@@ -45,3 +45,16 @@ export const updateUserProfile = async (profileData) => {
   return response.data
 };
 
+export const getUsers = async() =>{
+  const response = await api.get("users/users");
+  return response.data.results
+}
+
+export const updateUserRole = async(userId,newRole) =>{
+  return await api.patch(`users/users/${userId}/`,{
+    assigned_role : newRole
+
+  });
+  
+
+};

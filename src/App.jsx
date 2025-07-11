@@ -14,17 +14,13 @@ import UpdateProfile from './components/Auth/UpdateProfile'
 import TaskCalendar from './components/Tasks/TaskCalender'
 import MainLayout from './components/Layout/MainLayout'
 import AdminDashboard from './components/Admin/AdminDashboard'
-<<<<<<< HEAD
-import { UserTaskDetail } from './components/Admin/UserTaskDetails'
-import UserRoute from './routes/UserRoute'
-import AdminRoute from './routes/AdminRoute'
-
-=======
 import UserTaskDetail from './components/Admin/UserTaskDetail'
 import ProtectedRoute from './routes/ProtectedRoute'
 import NotAuthorized from './Pages/NotAuthorized'
 import AdminDashboardAnalytics from './components/Admin/DashboardAnalytics'
->>>>>>> UI changes for Task Dashboard and admin functionalities - 10-07-2025
+import ManageUsers from './components/Admin/ManageUsers'
+import TaskAssign from './components/Admin/TaskAssign'
+
 
 function App() {
 
@@ -34,28 +30,18 @@ function App() {
       <Route path="/login" element={<Login/>}/>
       <Route path="/signup" element={<Signup/>}/>
       <Route path="/forgot-password" element={<ChangePassword/>} />
-<<<<<<< HEAD
-      <Route path="/dashboard" element={<UserRoute><MainLayout><Dashboard/></MainLayout></UserRoute>}/>
-      <Route path="/admin-dashboard" element={<AdminRoute><AdminDashboard/></AdminRoute>}/>
-      <Route path="/admin/tasks/:id" element={<AdminRoute><UserTaskDetail/></AdminRoute>}/>
-      <Route path="/tasks/create" element={<UserRoute><MainLayout><TaskCreate /></MainLayout></UserRoute>} />
-      <Route path="/tasks/update/:id" element={<UserRoute><MainLayout><TaskUpdate/></MainLayout></UserRoute>}/>
-      <Route path="/tasks/:id" element={<UserRoute><MainLayout><TaskDetail/></MainLayout></UserRoute>}/>
-      <Route path="/update-profile" element={<MainLayout><UpdateProfile /></MainLayout>} />
-      <Route path="/calendar" element={<UserRoute><MainLayout><TaskCalendar/></MainLayout></UserRoute>}/>
-=======
-      <Route path="/dashboard" element={<ProtectedRoute allowedRoles={["user"]}><MainLayout><Dashboard/></MainLayout></ProtectedRoute>}/>
+      <Route path="/dashboard" element={<ProtectedRoute allowedRoles={["junior","senior","lead"]}><MainLayout><Dashboard/></MainLayout></ProtectedRoute>}/>
       <Route path="/admin-dashboard" element={<ProtectedRoute allowedRoles={["admin"]}><MainLayout><AdminDashboard/></MainLayout></ProtectedRoute>}/>
-      <Route path="/tasks/create" element={<ProtectedRoute allowedRoles={["user"]}><MainLayout><TaskCreate /></MainLayout></ProtectedRoute>} />
-      <Route path="/tasks/update/:id" element={<ProtectedRoute allowedRoles={["user"]}><MainLayout><TaskUpdate/></MainLayout></ProtectedRoute>}/>
-      <Route path="/tasks/:id" element={<ProtectedRoute allowedRoles={["user"]}><MainLayout><TaskDetail/></MainLayout></ProtectedRoute>}/>
+      <Route path="/tasks/create" element={<ProtectedRoute allowedRoles={["junior","senior","lead"]}><MainLayout><TaskCreate /></MainLayout></ProtectedRoute>} />
+      <Route path="/tasks/update/:id" element={<ProtectedRoute allowedRoles={["junior","senior","lead"]}><MainLayout><TaskUpdate/></MainLayout></ProtectedRoute>}/>
+      <Route path="/tasks/:id" element={<ProtectedRoute allowedRoles={["junior","senior","lead"]}><MainLayout><TaskDetail/></MainLayout></ProtectedRoute>}/>
+      <Route path="/tasks/assign" element={<ProtectedRoute allowedRoles={["junior","senior","lead"]}><MainLayout><TaskAssign/></MainLayout></ProtectedRoute>}/>
       <Route path="/admin/tasks/:id" element={<ProtectedRoute allowedRoles={["admin"]}><MainLayout><UserTaskDetail/></MainLayout></ProtectedRoute>}/>
       <Route path="/admin-analytics" element={<ProtectedRoute allowedRoles={["admin"]}><MainLayout><AdminDashboardAnalytics/></MainLayout></ProtectedRoute>}/>
+      <Route path="/manage-users" element={<ProtectedRoute allowedRoles={["admin"]}><MainLayout><ManageUsers/></MainLayout></ProtectedRoute>}/>
       <Route path="/update-profile" element={<MainLayout><UpdateProfile /></MainLayout>} />
-      <Route path="/calendar" element={<PrivateRoute><MainLayout><TaskCalendar/></MainLayout></PrivateRoute>}/>
+      <Route path="/calendar" element={<ProtectedRoute><MainLayout><TaskCalendar/></MainLayout></ProtectedRoute>}/>
       <Route path="/not-authorized" element={<NotAuthorized/>}/>
-
->>>>>>> UI changes for Task Dashboard and admin functionalities - 10-07-2025
     </Routes>   
   );
 }
