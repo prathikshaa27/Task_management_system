@@ -28,7 +28,7 @@ class TaskSerializer(serializers.ModelSerializer):
     )
     category_names = serializers.SerializerMethodField()
     username = serializers.CharField(source='user.username', read_only=True)
-    assignee_id = serializers.IntegerField(write_only=True)
+    assignee_id = serializers.IntegerField(write_only=True, required=False)
     assignee_name = serializers.CharField(source="user.username",read_only=True)
 
 
@@ -46,7 +46,7 @@ class TaskSerializer(serializers.ModelSerializer):
             "created_at",
             "username",
             "assignee_id",
-            "assignee_name"
+            "assignee_name",
         ]
 
     def get_category_names(self, obj):

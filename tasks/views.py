@@ -208,6 +208,7 @@ class AnalyticsViewSet(viewsets.ViewSet):
       
 class TaskAssignViewSet(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
 
     def create(self,request):
         try:

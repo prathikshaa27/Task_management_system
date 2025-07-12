@@ -10,7 +10,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from users.serializers import UserProfileSerializer, UserRegistrationSerializer,CustomTokenObtainPairSerializer,UserSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
-from rest_framework import viewsets
+from users.permissions import IsLeasOrSeniorOrAdmin
 from users.models import CustomUser
 
 # Create your views here.
@@ -119,7 +119,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 class UserListView(generics.ListAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsLeasOrSeniorOrAdmin]
 
 class UserRoleUpdateView(generics.UpdateAPIView):
     queryset = CustomUser.objects.all()
