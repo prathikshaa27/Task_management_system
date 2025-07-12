@@ -1,35 +1,43 @@
 import React, { useState, useEffect } from "react";
-import { assignTask } from "../../services/task";
+import { assignTask ,fetchCategories} from "../../services/task";
 import { getUsers } from "../../services/auth";
 import { useAuth } from "../../context/AuthContext"
 import { Form, Button, Container, Alert, Spinner } from "react-bootstrap";
 
 export default function TaskAssign() {
   const { user, role } = useAuth();
+
   const [users, setUsers] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
     due_date: "",
     assignee_id: "",
     priority: "Medium",
+    category: [],
   });
+
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [loadingUsers, setLoadingUsers] = useState(true);
+  const [loadingCategories, setLoadingCategories] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     const loadUsers = async () => {
       try {
         const allUsers = await getUsers();
-
         let filtered = [];
+
         if (role === "lead") {
-          filtered = allUsers.filter((u) => u.role === "senior" || u.role === "junior");
+          filtered = allUsers.filter(
+            (u) => u.role === "senior" || u.role === "junior"
+          );
         } else if (role === "senior") {
           filtered = allUsers.filter((u) => u.role === "junior");
         }
+
         setUsers(filtered);
       } catch (err) {
         console.error("Failed to load users", err);
@@ -38,12 +46,41 @@ export default function TaskAssign() {
         setLoadingUsers(false);
       }
     };
+
+    const loadCategories = async () => {
+      try {
+        const catData = await fetchCategories();
+        setCategories(catData);
+      } catch (err) {
+        console.error("Failed to fetch categories", err);
+        setError("Could not fetch categories.");
+      } finally {
+        setLoadingCategories(false);
+      }
+    };
+
     loadUsers();
+    loadCategories();
   }, [role]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleCategoryCheckbox = (e) => {
+    const id = parseInt(e.target.value);
+    const isChecked = e.target.checked;
+
+    setFormData((prev) => {
+      let updated = [...prev.category];
+      if (isChecked) {
+        updated.push(id);
+      } else {
+        updated = updated.filter((catId) => catId !== id);
+      }
+      return { ...prev, category: updated };
+    });
   };
 
   const handleSubmit = async (e) => {
@@ -61,6 +98,7 @@ export default function TaskAssign() {
         due_date: "",
         assignee_id: "",
         priority: "Medium",
+        category: [],
       });
     } catch (err) {
       console.error("Assign failed", err);
@@ -77,12 +115,14 @@ export default function TaskAssign() {
       {error && <Alert variant="danger">{error}</Alert>}
       {message && <Alert variant="success">{message}</Alert>}
 
-      {loadingUsers ? (
+      {loadingUsers || loadingCategories ? (
         <div className="text-center">
           <Spinner animation="border" />
         </div>
       ) : users.length === 0 ? (
-        <p className="text-muted text-center">No eligible users to assign tasks to.</p>
+        <p className="text-muted text-center">
+          No eligible users to assign tasks to.
+        </p>
       ) : (
         <Form onSubmit={handleSubmit} className="shadow p-4 rounded bg-white">
           <Form.Group className="mb-3">
@@ -136,6 +176,22 @@ export default function TaskAssign() {
                 </option>
               ))}
             </Form.Select>
+          </Form.Group>
+
+          <Form.Group className="mb-3">
+            <Form.Label>Categories</Form.Label>
+            <div>
+              {categories.map((cat) => (
+                <Form.Check
+                  key={cat.id}
+                  type="checkbox"
+                  label={cat.name}
+                  value={cat.id}
+                  onChange={handleCategoryCheckbox}
+                  checked={formData.category.includes(cat.id)}
+                />
+              ))}
+            </div>
           </Form.Group>
 
           <Form.Group className="mb-4">
