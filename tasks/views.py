@@ -5,14 +5,14 @@ from django.utils import timezone
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, serializers, viewsets
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated,IsAdminUser
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from tasks.permissions import IsOwnerOrAdminOnly
 
 from tasks.models import Category, Task
 from tasks.serializers import CategorySerializer, TaskSerializer
-from django.utils.timezone import now,timedelta
+from django.utils.timezone import now, timedelta
 from rest_framework import status
 from django.db.models import Count
 from collections import defaultdict
@@ -39,7 +39,7 @@ class TaskViewSet(viewsets.ModelViewSet):
     serializer_class = TaskSerializer
     queryset = Task.objects.all()
     authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated,IsOwnerOrAdminOnly]
+    permission_classes = [IsAuthenticated, IsOwnerOrAdminOnly]
 
     filter_backends = [
         DjangoFilterBackend,
@@ -47,7 +47,7 @@ class TaskViewSet(viewsets.ModelViewSet):
         filters.SearchFilter,
     ]
     filterset_fields = ["status", "priority", "due_date"]
-    ordering_fields = ["priority", "due_date","user__username"]
+    ordering_fields = ["priority", "due_date", "user__username"]
     search_fields = ["title", "category__name"]
 
     def get_queryset(self):
@@ -64,8 +64,8 @@ class TaskViewSet(viewsets.ModelViewSet):
         """
         try:
             user = self.request.user
-            if hasattr(user,'role') and user.role == 'admin':
-             return Task.objects.all()
+            if hasattr(user, "role") and user.role == "admin":
+                return Task.objects.all()
             return Task.objects.filter(user=user)
         except Exception as e:
             logger.error(f"Error fetching tasks for user {self.request.user}: {str(e)}")
@@ -89,7 +89,9 @@ class TaskViewSet(viewsets.ModelViewSet):
             if "category" in self.request.data:
                 task.category.set(self.request.data.get("category", []))
         except Exception as e:
-            raise serializers.ValidationError({"error":"Task creation failed" + str(e)})
+            raise serializers.ValidationError(
+                {"error": "Task creation failed" + str(e)}
+            )
 
     def perform_update(self, serializer):
         """
@@ -103,8 +105,21 @@ class TaskViewSet(viewsets.ModelViewSet):
         Raises:
           serializers.ValidationError: If the task update fails due to invalid input or internal error.
         """
+        task = self.get_object()
+        current_user = self.request.user
+        assigner = task.assigned_by
         try:
-            task = serializer.save(user=self.request.user)
+            if current_user.role == "junior" and assigner and assigner != current_user:
+                raise serializers.ValidationError(
+                    {
+                        "error": "You cannot edit tasks assigned to you by a senior and lead"
+                    }
+                )
+            if current_user.role == "senior" and assigner and assigner.role == "lead":
+                raise serializers.ValidationError(
+                    {"error": "You cannot edit tasks assigned to you by a lead"}
+                )
+            task = serializer.save(user=current_user)
             if "category" in self.request.data:
                 task.category.set(self.request.data.get("category", []))
         except Exception as e:
@@ -183,34 +198,48 @@ class CategoryViewSet(viewsets.ModelViewSet):
         """
         return {"request": self.request}
 
+
 class AnalyticsViewSet(viewsets.ViewSet):
     permission_classes = [IsAdminUser]
 
-    @action(detail=False, methods=['get'], url_path="summary")
-    def analytics_summary(self,request):
+    @action(detail=False, methods=["get"], url_path="summary")
+    def analytics_summary(self, request):
         user = request.user
-        if not hasattr(user,'role') or user.role !='admin':
-            return Response({"detail":"Only admins can access this endpoint"}, status=status.HTTP_403_FORBIDDEN)
-        active_users =(Task.objects.values("user__username").annotate(task_count=Count("id")).order_by("-task_count")[:5])
+        if not hasattr(user, "role") or user.role != "admin":
+            return Response(
+                {"detail": "Only admins can access this endpoint"},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+        active_users = (
+            Task.objects.values("user__username")
+            .annotate(task_count=Count("id"))
+            .order_by("-task_count")[:5]
+        )
 
         today = now().date()
         daily_tasks = defaultdict(int)
         for i in range(7):
-            day = today-timedelta(days=i)
+            day = today - timedelta(days=i)
             count = Task.objects.filter(created_at=day).count()
             daily_tasks[day.strftime("%Y-%m-%d")] = count
-            status_distribution = Task.objects.values("status").annotate(count=Count("id"))
-            return Response({
-                "active_users":list(active_users),
-                "tasks_per_day":dict(daily_tasks),
-                "status_summary":status_distribution
-            }, status=status.HTTP_200_OK)
-      
+            status_distribution = Task.objects.values("status").annotate(
+                count=Count("id")
+            )
+            return Response(
+                {
+                    "active_users": list(active_users),
+                    "tasks_per_day": dict(daily_tasks),
+                    "status_summary": status_distribution,
+                },
+                status=status.HTTP_200_OK,
+            )
+
+
 class TaskAssignViewSet(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
 
-    def create(self,request):
+    def create(self, request):
         try:
             assigner = request.user
             assignee_id = request.data.get("assignee_id")
@@ -218,17 +247,23 @@ class TaskAssignViewSet(viewsets.ViewSet):
             print("User:", request.user)
             print("Is authenticated:", request.user.is_authenticated)
             print("Role:", getattr(request.user, "role", "NO ROLE"))
-            
 
-
-            if not can_assign_tasks(assigner,assignee):
-                return Response({"error":"Permission denied to assign task to this user"}, status=status.HTTP_403_FORBIDDEN)
+            if not can_assign_tasks(assigner, assignee):
+                return Response(
+                    {"error": "Permission denied to assign task to this user"},
+                    status=status.HTTP_403_FORBIDDEN,
+                )
             serializer = TaskSerializer(data=request.data)
             if serializer.is_valid():
-                serializer.save(user=assignee)
-                return Response(serializer.data,status=status.HTTP_201_CREATED)
+                serializer.save(user=assignee, assigned_by=assigner)
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         except CustomUser.DoesNotExist:
-            return Response({"error": "Assignee user not found"}, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {"error": "Assignee user not found"}, status=status.HTTP_404_NOT_FOUND
+            )
         except Exception as e:
-            return Response({"error":f"Task assignment failed: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(
+                {"error": f"Task assignment failed: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )

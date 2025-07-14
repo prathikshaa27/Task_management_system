@@ -27,10 +27,13 @@ class TaskSerializer(serializers.ModelSerializer):
         queryset=Category.objects.all(), many=True
     )
     category_names = serializers.SerializerMethodField()
-    username = serializers.CharField(source='user.username', read_only=True)
+    username = serializers.CharField(source="user.username", read_only=True)
     assignee_id = serializers.IntegerField(write_only=True, required=False)
-    assignee_name = serializers.CharField(source="user.username",read_only=True)
-
+    assignee_name = serializers.CharField(source="user.username", read_only=True)
+    assigned_by_name = serializers.CharField(
+        source="assigned_by.username", read_only=True
+    )
+    assigned_by_role = serializers.CharField(source="assigned_by.role", read_only=True)
 
     class Meta:
         model = Task
@@ -47,13 +50,17 @@ class TaskSerializer(serializers.ModelSerializer):
             "username",
             "assignee_id",
             "assignee_name",
+            "assigned_by_name",
+            "assigned_by_role",
         ]
 
     def get_category_names(self, obj):
         return [cat.name for cat in obj.category.all()]
+
     def create(self, validated_data):
-        category_data = validated_data.pop('category',[])
+        category_data = validated_data.pop("category", [])
         validated_data.pop("assignee_id", None)
+        validated_data.pop("assigned_id", None)
         task = Task.objects.create(**validated_data)
         task.category.set(category_data)
         return task

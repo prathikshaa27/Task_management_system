@@ -56,18 +56,29 @@ class UserProfileSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 {"error": f"User profile update failed{str(e)}"}
             )
-        
+
+
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
-    def get_token(cls,user):
+    def get_token(cls, user):
         token = super().get_token(user)
         token["role"] = user.role
         return token
+
     def validate(self, attrs):
         data = super().validate(attrs)
         return data
 
+
 class UserSerializer(serializers.ModelSerializer):
+    assigned_role = serializers.CharField(write_only=True, required=False)
+
     class Meta:
         model = User
-        fields = ["id","username","email","role"]
+        fields = ["id", "username", "email", "role", "assigned_role"]
+
+    def update(self, instance, validated_data):
+        assigned_role = validated_data.pop("assigned_role", None)
+        if assigned_role:
+            validated_data["role"] = assigned_role
+        return super().update(instance, validated_data)

@@ -3,14 +3,19 @@ from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError as DjangoValidationError
 from rest_framework import generics, status
 from rest_framework.generics import RetrieveUpdateAPIView
-from rest_framework.permissions import AllowAny, IsAuthenticated,IsAdminUser
+from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
-from users.serializers import UserProfileSerializer, UserRegistrationSerializer,CustomTokenObtainPairSerializer,UserSerializer
+from users.serializers import (
+    UserProfileSerializer,
+    UserRegistrationSerializer,
+    CustomTokenObtainPairSerializer,
+    UserSerializer,
+)
 from rest_framework_simplejwt.views import TokenObtainPairView
-from users.permissions import IsLeasOrSeniorOrAdmin
+from users.permissions import IsLeadOrSeniorOrAdmin
 from users.models import CustomUser
 
 # Create your views here.
@@ -113,15 +118,46 @@ class UserProfileView(RetrieveUpdateAPIView):
         """
         return self.request.user
 
+
 class CustomTokenObtainPairView(TokenObtainPairView):
+    """_summary_
+     A custom view to obtain JWT access and refresh tokens using a custom serializer.
+
+    This view overrides the default TokenObtainPairView to allow
+    for additional validation or data to be returned during login.
+
+    Args:
+        TokenObtainPairView (class): Base view from SimpleJWT for token generation.
+    """
+
     serializer_class = CustomTokenObtainPairSerializer
 
+
 class UserListView(generics.ListAPIView):
+    """_summary_
+    API view to retrieve a list of all users.
+
+    Only users with roles 'lead', 'senior', or 'admin' are allowed to access this view.
+
+    Args:
+         generics.ListAPIView (class): A built-in DRF generic view that provides a read-only endpoint for listing a queryset.
+    """
+
     queryset = CustomUser.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [IsLeasOrSeniorOrAdmin]
+    permission_classes = [IsLeadOrSeniorOrAdmin]
+
 
 class UserRoleUpdateView(generics.UpdateAPIView):
+    """_summary_
+     API view to update the details of a user, such as their role.
+
+    Only users with roles 'lead', 'senior', or 'admin' are allowed to perform this update.
+
+    Args:
+         generics.UpdateAPIView (class): A DRF generic view that provides PUT and PATCH methods for updating an object.
+    """
+
     queryset = CustomUser.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsLeadOrSeniorOrAdmin]
