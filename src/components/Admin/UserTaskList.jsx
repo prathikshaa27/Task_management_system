@@ -6,6 +6,7 @@ import { AiOutlineCalendar } from "react-icons/ai";
 import { RiTodoFill } from "react-icons/ri";
 import {Form} from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
+import { PAGE_SIZE ,PRIORITY_CHOICES,SORT_OPTIONS} from '../../constants/taskOptions';
 
 export default function UserTasks() {
   const [userTasks, setUserTasks] = useState({});
@@ -36,7 +37,7 @@ export default function UserTasks() {
             grouped[user].push(task);
         });
         setUserTasks(grouped);
-        const total = Math.ceil((response?.count || 0 ) /10);
+        const total = Math.ceil((response?.count || 0 ) /PAGE_SIZE);
         setTotalPages(total)
 
       } catch (err) {
@@ -78,9 +79,11 @@ export default function UserTasks() {
                 }
               >
                 <option value="">Filter by Priority</option>
-                <option value="High">High</option>
-                <option value="Medium">Medium</option>
-                <option value="Low">Low</option>
+               {PRIORITY_CHOICES.map((level)=>(
+                <option key={level} value={level}>
+                  {level}
+                </option>
+               ))}
               </Form.Select>
             </Col>
 
@@ -108,25 +111,23 @@ export default function UserTasks() {
                 }
               >
                 <option value="">Sort by</option>
-                <option value="due_date">Due Date (Earliest)</option>
-                <option value="-due_date">Due Date (Latest)</option>
-                <option value="priority">Priority (Low → High)</option>
-                <option value="-priority">Priority (High → Low)</option>
-                <option value="user__username">Username (A → Z)</option>
-                <option value="-user__username">Username (Z → A)</option>
+                {SORT_OPTIONS.map((opt)=>(
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
               </Form.Select>
             </Col>
           </Row>
 
           <div className="text-end mt-3">
-            <Button variant="primary" onClick={loadUserTasks}>
+            <Button variant="primary" aria-label onClick={loadUserTasks}>
               Apply Filters
             </Button>{" "}
             <Button
-              variant="outline-secondary"
+              variant="outline-secondary" aria-label
               onClick={() => {
                 setFilters({ priority: "", search: "", ordering: "", page: 1 });
-                loadUserTasks();
               }}
             >
               Reset

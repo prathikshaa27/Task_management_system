@@ -8,6 +8,7 @@ import {
   Button,
 } from "react-bootstrap";
 import { getUsers, updateUserRole } from "../../services/auth";
+import { USER_ROLES,ASSIGNABLE_ROLES } from "../../constants/roles";
 
 export default function ManageUsers() {
   const [users, setUsers] = useState([]);
@@ -15,8 +16,6 @@ export default function ManageUsers() {
   const [error, setError] = useState("");
   const [selectedRoles, setSelectedRoles] = useState({});
   const [updatingUserId, setUpdatingUserId] = useState(null);
-
-  const roleOptions = ["admin", "lead", "senior", "junior"];
 
   const fetchAllUsers = async () => {
     try {
@@ -101,7 +100,7 @@ export default function ManageUsers() {
               handleRoleSelect(user.id, e.target.value)
             }
           >
-            {["lead", "senior", "junior"].map((role) => (
+            {ASSIGNABLE_ROLES.map((role) => (
               <option key={role} value={role}>
                 {role.charAt(0).toUpperCase() + role.slice(1)}
               </option>

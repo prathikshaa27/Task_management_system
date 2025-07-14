@@ -2,10 +2,7 @@ import React ,{useEffect, useState}from "react";
 import { BarChart,Bar,XAxis,YAxis,Tooltip,ResponsiveContainer,PieChart,Pie,Cell,Legend } from "recharts";
 import {Card,Spinner,Table} from "react-bootstrap";
 import { fetchAnalyticsSummary } from "../../services/task";
-
-
-const COLORS = ["#0d6efd", "#198754", "#ffc107", "#dc3545"];
-
+import { STATUS_CHART_COLORS } from "../../constants/analytics";
 export default function AdminDashboardAnalytics(){
     const[data,setData] = useState(null)
     const[loading, setLoading] = useState(true);
@@ -74,7 +71,7 @@ export default function AdminDashboardAnalytics(){
                     {data.status_summary.map((_, index) => (
                       <Cell
                         key={`cell-${index}`}
-                        fill={COLORS[index % COLORS.length]}
+                        fill={STATUS_CHART_COLORS[index % STATUS_CHART_COLORS.length]}
                       />
                     ))}
                   </Pie>

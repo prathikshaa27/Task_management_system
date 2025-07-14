@@ -3,6 +3,7 @@ import { assignTask ,fetchCategories} from "../../services/task";
 import { getUsers } from "../../services/auth";
 import { useAuth } from "../../context/AuthContext"
 import { Form, Button, Container, Alert, Spinner } from "react-bootstrap";
+import { STATUS_OPTIONS,PRIORITY_CHOICES } from "../../constants/taskOptions";
 
 export default function TaskAssign() {
   const { user, role } = useAuth();
@@ -159,6 +160,9 @@ export default function TaskAssign() {
               onChange={handleChange}
               required
             />
+             {STATUS_OPTIONS.map((status) =>(
+                          <option key={status} value={status}>{status}</option>
+                        ))}
           </Form.Group>
 
           <Form.Group className="mb-3">
@@ -201,9 +205,10 @@ export default function TaskAssign() {
               value={formData.priority}
               onChange={handleChange}
             >
-              <option>Low</option>
-              <option>Medium</option>
-              <option>High</option>
+              {PRIORITY_CHOICES.map((priority) =>(
+                            <option key={priority} value={priority}>{priority}</option>
+                          ))}
+          
             </Form.Select>
           </Form.Group>
 

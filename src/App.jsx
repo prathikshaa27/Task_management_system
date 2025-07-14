@@ -28,6 +28,7 @@ function App() {
     <Routes>
       <Route path="/" element={<WelcomeScreen/>}/>
       <Route path="/login" element={<Login/>}/>
+      <Route path="/admin-login" element={<Login/>}/>
       <Route path="/signup" element={<Signup/>}/>
       <Route path="/forgot-password" element={<ChangePassword/>} />
       <Route path="/dashboard" element={<ProtectedRoute allowedRoles={["junior","senior","lead"]}><MainLayout><Dashboard/></MainLayout></ProtectedRoute>}/>

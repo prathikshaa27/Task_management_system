@@ -15,6 +15,8 @@ export default function Signup() {
   });
 
   const [error, setError] = useState("");
+  const[showPassword,setShowPassword] = useState(false);
+  const[showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [success, setSuccess] = useState("");
   const[fieldErrors,setFieldErrors]= useState({});
 
@@ -121,9 +123,9 @@ export default function Signup() {
             
           </div>
 
-          <div className="form-floating mb-3">
+          <div className="form-floating mb-3 position-relative">
             <input
-              type="password"
+              type={showPassword ? "text" : "password"}
               className={`form-control ${fieldErrors.password? "is-invalid": ""}`}
               id="password"
               name="password"
@@ -136,11 +138,15 @@ export default function Signup() {
             {fieldErrors.password && (
               <div className="invalid-feedback">{fieldErrors.password}</div>
             )}
+            <i className={`bi ${showPassword ? "bi-eye-slash": "bi-eye"} position-absolute top-50 end-0 translate-middle-y me-3 cursor-pointer`}
+            onClick={()=>setShowPassword(!showPassword)}
+            style={{cursor:"pointer"}}
+            >
+            </i>          
           </div>
-
-          <div className="form-floating mb-4">
+          <div className="form-floating mb-4 position-relative">
             <input
-              type="password"
+              type={showConfirmPassword ? "text":"password"}
               className={`form-control ${fieldErrors.password_check? "is-invalid": ""}`}
               id="password_check"
               name="password_check"
@@ -153,6 +159,11 @@ export default function Signup() {
             {fieldErrors.password_check && (
               <div className="invalid-feedback">{fieldErrors.password_check}</div>
             )}
+            <i className={`bi ${showConfirmPassword ? "bi-eye-slash":"bi-eye"} position-absolute top-50 end-0 translate-middle-y me-3 cursor-pointer`}
+              onClick={()=>setShowConfirmPassword(!showConfirmPassword)}
+              style={{cursor:"pointer"}}
+            >
+            </i>
           </div>
 
           <button type="submit" className="btn btn-primary w-100">

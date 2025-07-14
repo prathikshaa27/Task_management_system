@@ -1,12 +1,15 @@
 import React,{useEffect,useState} from "react";
 import { fetchTasks } from "../../services/task";
 import { useParams,Link } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
+import { shouldShowAssignedBy } from "../../utils/taskUtils";
 
 
 export default function TaskDetail(){
     const{id} = useParams();
     const[task,setTask]  = useState(null);
     const[error,setError] = useState("");
+    const{user,role} = useAuth();
 
     useEffect(()=>{
         const load = async()=>{
@@ -56,7 +59,13 @@ export default function TaskDetail(){
           {task.priority}
         </span>
       </div>
-
+      {shouldShowAssignedBy(task,user,role) && (
+                            <div className="mb-2">
+                              <strong>Task Assigned By: </strong>{" "}
+                              <span className="text-primary">
+                                {task.assigned_by_name} ({task.assigned_by_role})
+                              </span>
+                              </div>)}
       <div className="mb-2">
         <strong>Due Date:</strong>{" "}
         <span className="text-secondary">{task.due_date}</span>
@@ -79,7 +88,6 @@ export default function TaskDetail(){
           <span className="text-muted d-block mt-1">No categories</span>
         )}
       </div>
-
       <Link to="/dashboard" className="btn btn-outline-primary mt-3">
         <i className="bi bi-arrow-left-circle me-1"></i> Back to Dashboard
       </Link>
