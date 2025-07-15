@@ -64,7 +64,7 @@ export default function TaskForm({initialData={},onsubmit,isEdit=false}){
     };
     console.log("Categories from backend:", categories);
     return (
-  <div className="bg-light py-5 px-3 min-vh-100">
+  <div className="py-3 px-3">
     <div className="container">
       <div className="d-flex justify-content-center">
         <motion.form

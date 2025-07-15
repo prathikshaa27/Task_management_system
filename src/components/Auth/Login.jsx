@@ -9,7 +9,7 @@ export default function Login() {
   const location = useLocation();
   const isAdminRoute = location.pathname === "/admin-login";
 
-  const { login, role } = useAuth();
+  const { login, user } = useAuth();
 
   const [formData, setFormData] = useState({
     username: "",
@@ -48,7 +48,8 @@ export default function Login() {
       if (isLoggedIn) {
         setSuccess("Login successful! Redirecting...");
         setTimeout(() => {
-          if (role === "admin") {
+          const currentRole = user?.role;
+          if (currentRole === "admin") {
             navigate("/admin-dashboard");
           } else {
             if (isAdminRoute) {

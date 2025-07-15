@@ -11,7 +11,7 @@ export default function TaskCreate(){
         navigate("/dashboard")
     };
     return(
-        <div className="d-flex align-items-center justify-content-center min-vh-100 bg-light px-3">
+        <div className="d-flex justify-content-center px-3 py-3">
             <motion.div
               className="w-100"
               style={{maxWidth:"600px"}}

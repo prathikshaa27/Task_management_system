@@ -117,3 +117,32 @@ body { overflow-x: hidden; }
     font-size: 0.8rem;
   }
 }
+
+body {
+  background-color: #f1f4ff;
+}
+
+footer {
+  background-color: #eaf2fb !important;
+}
+
+main {
+  min-height: 60vh;
+}
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+header, .dashboard-banner, main {
+  max-width: 100vw;
+  overflow-x: hidden;
+}

@@ -8,9 +8,10 @@ export default function Dashboard(){
   const{role} = useAuth();
   const canAssign = role === "lead" ||role === 'senior';
     return(
-    <div className="position-relative min-vh-100 d-flex flex-column" style={{
+      
+    <div className="position-relative d-flex flex-column flex-grow-1" style={{
       background: "linear-gradient(135deg, #f2f4ff, #dbeafe)",
-      overflow:"hidden"
+      overflowX:"hidden"
     }}>
         <img
         src={dashboard}
@@ -21,7 +22,7 @@ export default function Dashboard(){
           right: "5%",
           width: "250px",
           opacity: 0.05,
-          zIndex: 0
+          zIndex: 0,
         }}
         />
 
@@ -42,7 +43,7 @@ export default function Dashboard(){
           </div>
         )}
           </div>
-           <div className="flex-grow-1 overflow-auto px-4 py-3" style={{ zIndex: 1 }}>
+           <div className="flex-grow-1 overflow-auto px-4 py-3" style={{ zIndex: 1 ,minHeight:0}}>
         <TaskList />
         </div>
       </div>

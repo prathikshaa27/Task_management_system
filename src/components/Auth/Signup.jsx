@@ -3,7 +3,7 @@ import { signupUser } from "../../services/auth";
 import signup_img from "../../assets/images/signup_img.svg";
 import { useNavigate ,Link} from "react-router-dom";
 import {motion} from "framer-motion"
-import { findElements } from "@fullcalendar/core/internal.js";
+
 
 export default function Signup() {
   const navigate = useNavigate();
@@ -171,7 +171,7 @@ export default function Signup() {
           </button>
           <p className="text-center small">
             Already have an account?{" "}
-            <Link to ="/login" className="text-decoration-none" fw-semibold text-primary>
+            <Link to ="/login" className="text-decoration-none fw-semibold text-primary">
             Log in
             </Link>
           </p>

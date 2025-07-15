@@ -17,7 +17,7 @@ export default function UpdateProfile() {
       try {
         const profile = await fetchUserProfile();
         setFormData({ username: profile.username, email: profile.email, password: "" });
-        setoriginalData({username:profile.usernam, email:profile.email});
+        setoriginalData({username:profile.username, email:profile.email});
       } catch (err) {
         console.error("Failed to load profile:", err);
         setError("Failed to load profile.");

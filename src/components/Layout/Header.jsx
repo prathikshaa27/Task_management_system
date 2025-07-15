@@ -13,7 +13,7 @@ export default function Header(){
   }
     return (
     <header className="bg-info bg-opacity-10 py-3 border-bottom">
-      <div className="container-fluid d-flex justify-content-between align-items-center flex-wrap px-3">
+      <div className="container d-flex justify-content-between align-items-center flex-wrap gap-3">
         <Link
           to={homeLink}
           className="text-decoration-none d-flex align-items-center gap-2"
@@ -22,7 +22,7 @@ export default function Header(){
           <h4 className="fw-bold text-dark mb-0 fs-2">Task Manager</h4>
         </Link>
         <div className="d-flex align-items-center gap-3 me-4">
-          {user?.role === "user" && (
+          {user?.role &&["junior","senior","lead"].includes(user?.role)&& (
           <Link
             to="/calendar"
             className="text-dark text-decoration-none fw-semibold d-flex align-items-center gap-1 fs-5"
