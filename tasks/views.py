@@ -200,10 +200,38 @@ class CategoryViewSet(viewsets.ModelViewSet):
 
 
 class AnalyticsViewSet(viewsets.ViewSet):
+    """
+    A viewset that provides analytics summary data for administrators.
+
+    This viewset is restricted to users with the role 'admin' and returns:
+      - The top 5 most active users based on task count.
+      - The number of tasks created for each of the past 7 days.
+      - A distribution summary of task statuses (e.g., Pending, Completed).
+
+    Permissions:
+        - Only authenticated users with the admin role can access this view.
+
+    Methods:
+        get(request): Returns a JSON response containing analytics data.
+    """
     permission_classes = [IsAdminUser]
 
-    @action(detail=False, methods=["get"], url_path="summary")
-    def analytics_summary(self, request):
+    def get(self, request):
+        """
+    Handle GET requests to provide an analytics summary for admin users.
+
+    This method returns an overview of task-related analytics, including:
+      - Top 5 most active users based on the number of tasks assigned.
+      - Number of tasks created for each of the past 7 days.
+      - Distribution of task statuses across all tasks.
+
+    Args:
+        request (Request): The HTTP request object containing user credentials.
+
+    Returns:
+        Response: A DRF Response object containing analytics data or
+                  a 403 error if the user is not an admin.
+    """      
         user = request.user
         if not hasattr(user, "role") or user.role != "admin":
             return Response(
@@ -236,10 +264,50 @@ class AnalyticsViewSet(viewsets.ViewSet):
 
 
 class TaskAssignViewSet(viewsets.ViewSet):
+    """
+    ViewSet responsible for assigning tasks from one user to another.
+
+    This view handles task assignment via POST requests. Only authenticated users 
+    with proper permissions (based on business logic defined in `can_assign_tasks`) 
+    are allowed to assign tasks to others.
+
+    Attributes:
+        permission_classes (list): Ensures only authenticated users can access this view.
+        authentication_classes (list): Uses JWT authentication to verify users.
+
+    Methods:
+        create(request):
+            Handles task creation and assignment from the assigner (request user) 
+            to the assignee (provided via `assignee_id` in the request data).
+            Returns 201 on success, 403 for permission errors, 404 if the assignee 
+            is not found, or 400/500 for other issues.
+    """
+    
+    
     permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
 
     def create(self, request):
+        """
+    Assigns a task to another user.
+
+    This method allows the authenticated user (assigner) to assign a task 
+    to another user (assignee) based on the provided `assignee_id` and 
+    task details in the request payload.
+
+    Args:
+        request (Request): The HTTP request object containing user credentials 
+                           and task assignment data (including `assignee_id`, 
+                           title, description, etc.).
+
+    Returns:
+        Response: 
+            - 201 Created: If the task is successfully assigned.
+            - 400 Bad Request: If the task data is invalid.
+            - 403 Forbidden: If the assigner is not permitted to assign tasks to the assignee.
+            - 404 Not Found: If the assignee user ID does not exist.
+            - 500 Internal Server Error: For any unexpected issues during assignment.
+    """     
         try:
             assigner = request.user
             assignee_id = request.data.get("assignee_id")

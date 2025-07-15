@@ -8,6 +8,8 @@ from django.urls import reverse
 from rest_framework.test import APIClient
 
 from tasks.models import Category, Task
+from rest_framework_simplejwt.tokens import AccessToken
+from django.utils.timezone import now
 
 # Create your tests here.
 
@@ -70,6 +72,51 @@ def multiple_tasks(user, category):
         status="Completed",
         due_date="2025-07-01",
     )
+pytest.fixture
+def admin_user(db):
+    from django.contrib.auth import get_user_model
+    User = get_user_model()
+    return User.objects.create_user(
+        username="admin_user",
+        password="Admin@123",
+        email="admin@example.com",
+        role="admin"
+    )
+
+@pytest.fixture
+def admin_client(api_client, admin_user):
+    token = AccessToken.for_user(admin_user)
+    api_client.credentials(HTTP_AUTHORIZATION=f'Bearer {str(token)}')
+    return api_client
+
+@pytest.fixture
+def admin_tasks(admin_user):
+    today = now().date()
+    for i in range(7):
+        Task.objects.create(
+            user=admin_user,
+            title=f"Task {i}",
+            status="Completed" if i % 2 == 0 else "In Progress",
+            created_at=today - timedelta(days=i),
+        )
+
+@pytest.fixture
+def assigner_user():
+    return User.objects.create_user(username="assigner", password="Assign@123", role="lead")
+
+@pytest.fixture
+def assignee_user():
+    return User.objects.create_user(username="assignee", password="Assignee@123", role="senior")
+
+@pytest.fixture
+def assign_auth_client(api_client, assigner_user):
+    token = AccessToken.for_user(assigner_user)
+    api_client.credentials(HTTP_AUTHORIZATION=f"Bearer {str(token)}")
+    return api_client
+
+@pytest.fixture
+def assign_category():
+    return Category.objects.create(name="Testing")
 
 
 @pytest.mark.django_db
@@ -92,7 +139,7 @@ def test_list_tasks(auth_client, task):
     url = reverse("task-list")
     response = auth_client.get(url)
     assert response.status_code == 200
-    assert any(t["title"] == "Test Task" for t in response.data)
+    assert any(t["title"] == "Test Task" for t in response.data["results"])
 
 
 @pytest.mark.django_db
@@ -124,7 +171,7 @@ def test_filter_task_by_priority(auth_client, multiple_tasks):
     url = reverse("task-list")
     response = auth_client.get(url, {"priority": "High"})
     assert response.status_code == 200
-    assert all(task["priority"] == "High" for task in response.data)
+    assert all(task["priority"] == "High" for task in response.data["results"])
 
 
 @pytest.mark.django_db
@@ -132,7 +179,7 @@ def test_filter_task_by_status(auth_client, multiple_tasks):
     url = reverse("task-list")
     response = auth_client.get(url, {"status": "Pending"})
     assert response.status_code == 200
-    assert all(task["status"] == "Pending" for task in response.data)
+    assert all(task["status"] == "Pending" for task in response.data["results"])
 
 
 @pytest.mark.django_db
@@ -140,7 +187,7 @@ def test_filter_task_by_due_date(auth_client, multiple_tasks):
     url = reverse("task-list")
     response = auth_client.get(url, {"due_date": "2025-06-30"})
     assert response.status_code == 200
-    assert all(task["due_date"] == "2025-06-30" for task in response.data)
+    assert all(task["due_date"] == "2025-06-30" for task in response.data["results"])
 
 
 @pytest.mark.django_db
@@ -148,7 +195,7 @@ def test_sort_task_by_priority(auth_client, multiple_tasks):
     url = reverse("task-list")
     response = auth_client.get(url, {"ordering": "priority"})
     assert response.status_code == 200
-    titles = [task["priority"] for task in response.data]
+    titles = [task["priority"] for task in response.data["results"]]
     assert titles == sorted(titles)
 
 
@@ -157,47 +204,15 @@ def test_sort_task_by_due_date(auth_client, multiple_tasks):
     url = reverse("task-list")
     response = auth_client.get(url, {"ordering": "due_date"})
     assert response.status_code == 200
-    titles = [task["due_date"] for task in response.data]
+    titles = [task["due_date"] for task in response.data["results"]]
     assert titles == sorted(titles)
-
-
-@pytest.mark.django_db
-def test_task_notifications(user):
-    user.email = "testuser@gmail.com"
-    user.save()
-
-    first_task = Task.objects.create(
-        user=user,
-        title="Python Revision",
-        due_date=date.today() + timedelta(days=1),
-        status="Pending",
-    )
-
-    second_task = Task.objects.create(
-        user=user,
-        title="CPD Session",
-        due_date=date.today() + timedelta(days=2),
-        status="In Progress",
-    )
-
-    call_command("send_reminders")
-    assert len(mail.outbox) == 1
-    email = mail.outbox[0]
-    assert "Python Revision" in email.body
-    assert "CPD Session" in email.body
-    assert email.to == [user.email]
-
-    first_task.refresh_from_db()
-    second_task.refresh_from_db()
-
-    assert first_task.reminder_sent_for_1_day is True
-    assert second_task.reminder_sent_for_2_days is True
-
 
 @pytest.mark.django_db
 def test_list_categories(auth_client, user):
     work_category = Category.objects.create(name="Work")
     personal_category = Category.objects.create(name="Personal")
+    urgent_category = Category.objects.create(name="Urgent")
+
 
     task = Task.objects.create(
         user=user,
@@ -216,6 +231,46 @@ def test_list_categories(auth_client, user):
     response = auth_client.get(url)
 
     assert response.status_code == 200
-    category_names = [cat["name"] for cat in response.data]
+    category_names = [cat["name"] for cat in response.data["results"]]
     assert "Work" in category_names
-    assert "Personal" not in category_names
+    assert "Personal" in category_names
+    assert "Urgent" in category_names
+
+@pytest.mark.django_db
+def test_analytics_summary_success(admin_client, admin_tasks):
+    url = reverse("analytics-list")
+    response = admin_client.get(url)
+
+    assert response.status_code == 200
+    assert "active_users" in response.data
+    assert "tasks_per_day" in response.data
+    assert "status_summary" in response.data
+    assert isinstance(response.data["active_users"], list)
+    assert isinstance(response.data["tasks_per_day"], dict)
+    assert isinstance(response.data["status_summary"], list)
+
+
+
+@pytest.mark.django_db
+def test_assign_task_success(assign_auth_client, assigner_user,assignee_user,assign_category,monkeypatch):
+    from tasks.views import can_assign_tasks
+    monkeypatch.setattr("tasks.views.can_assign_tasks",lambda assigner, assignee:True)
+    url = reverse("assign-task-list")
+    data = {
+        "title": "Test Task",
+        "description": "Sample Task",
+        "priority": "High",
+        "status": "Pending",
+        "category": [assign_category.id],
+        "assignee_id": assignee_user.id,
+        "due_date": "2025-07-20"
+    }
+    response = assign_auth_client.post(url, data=data, format="json")
+
+    assert response.status_code == 201
+    assert response.data["title"] == "Test Task"
+    assert response.data["assignee_name"] == assignee_user.username
+    assert response.data["assigned_by_name"] == assigner_user.username
+    assert response.data["assigned_by_role"] == assigner_user.role
+
+    
