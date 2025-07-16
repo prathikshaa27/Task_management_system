@@ -27,7 +27,7 @@ const login = async(credentials) => {
     if(decoded.role){
         localStorage.setItem("role", decoded.role)
     }
-    return true;
+    return decoded;
 };
 
 const signup = async(data)=>{

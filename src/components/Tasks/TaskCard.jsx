@@ -3,10 +3,12 @@ import { Link } from "react-router-dom";
 import { getPriorityBadgeClass } from "../../utils/priorityUtils";
 import { shouldShowAssignedBy, isOverdue, canEditorDelete } from "../../utils/taskUtils";
 import { useAuth } from "../../context/AuthContext";
+import { STATUS_OPTIONS } from "../../constants/taskOptions";
 
 
-export default function TaskCard({ task, onDelete }) {
+export default function TaskCard({ task, onDelete,onStatusChange}) {
   const { user, role } = useAuth();
+
 
   return (
     <div className="col-md-6 col-lg-4">
@@ -26,8 +28,23 @@ export default function TaskCard({ task, onDelete }) {
               </span>
             </div>
           )}
+          {task.assignee_id === user.id && (
+  <div className="mb-2">
+    <strong>Status:</strong>{" "}
+    <select
+      className="form-select form-select-sm d-inline w-auto ms-2"
+      value={task.status}
+      onChange={(e) => onStatusChange(task.id, e.target.value)}
+    >
+      {STATUS_OPTIONS.map((status) => (
+        <option key={status} value={status}>
+          {status}
+        </option>
+      ))}
+    </select>
+  </div>
+)}
 
-          <p className="text-muted mb-2">Status: {task.status}</p>
           <div className="mb-2">
             <strong>Priority:</strong>{" "}
             <span className={`badge ${getPriorityBadgeClass(task.priority)}`}>

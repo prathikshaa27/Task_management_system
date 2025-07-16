@@ -70,7 +70,7 @@ export default function TaskForm({initialData={},onsubmit,isEdit=false}){
         <motion.form
           onSubmit={handleSubmit}
           className="card shadow-lg border-0 rounded-4 p-4 bg-white w-100"
-          style={{ maxWidth: "600px" }}
+          style={{ maxWidth: "600px"}}
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
@@ -81,7 +81,7 @@ export default function TaskForm({initialData={},onsubmit,isEdit=false}){
 
           {error && <div className="alert alert-danger">{error}</div>}
 
-          <div className="mb-3">
+          <div className="mb-2">
             <label className="form-label" htmlFor="title">Title</label>
             <input
               type="text"
@@ -94,7 +94,7 @@ export default function TaskForm({initialData={},onsubmit,isEdit=false}){
             />
           </div>
 
-          <div className="mb-3">
+          <div className="mb-2">
             <label className="form-label" htmlFor="description">Description</label>
             <textarea
               id="description"
@@ -107,7 +107,7 @@ export default function TaskForm({initialData={},onsubmit,isEdit=false}){
             />
           </div>
 
-          <div className="row g-3">
+          <div className="row g-2">
             <div className="col-md-6">
               <label className="form-label" htmlFor="priority">Priority</label>
               <select
@@ -139,7 +139,7 @@ export default function TaskForm({initialData={},onsubmit,isEdit=false}){
             </div>
           </div>
 
-          <div className="mb-3 mt-3">
+          <div className="mb-2 mt-3">
             <label className="form-label" htmlFor="due_date">Due Date</label>
             <input
               type="date"

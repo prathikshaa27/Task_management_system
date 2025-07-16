@@ -110,7 +110,8 @@ export default function TaskAssign() {
   };
 
   return (
-    <Container className="mt-4">
+    <div style={{height:'100vh', overflow:'hidden',backgroundColor:'#f8f9fa',   padding: '20px'}}>
+    <Container style={{maxWidth:'600px',height:'100%',display:'flex',flexDirection:'column'}}>
       <h3 className="fw-bold text-primary text-center mb-4">Assign a Task</h3>
 
       {error && <Alert variant="danger">{error}</Alert>}
@@ -125,7 +126,9 @@ export default function TaskAssign() {
           No eligible users to assign tasks to.
         </p>
       ) : (
-        <Form onSubmit={handleSubmit} className="shadow p-4 rounded bg-white">
+        <Form onSubmit={handleSubmit} className="shadow p-4 rounded bg-white"
+        style={{flex:1, padding:'20px',display:'flex',flexDirection:'column',overflow:'hidden'}}>
+          <div style = {{flex:1, overflowY:'auto',paddingRight:'10px',marginRight:'-10px'}}>
           <Form.Group className="mb-3">
             <Form.Label>Task Title</Form.Label>
             <Form.Control
@@ -160,10 +163,21 @@ export default function TaskAssign() {
               onChange={handleChange}
               required
             />
-             {STATUS_OPTIONS.map((status) =>(
-                          <option key={status} value={status}>{status}</option>
-                        ))}
           </Form.Group>
+          <Form.Group className="mb-3">
+  <Form.Label>Status</Form.Label>
+  <Form.Select
+    name="status"
+    value={formData.status}
+    onChange={handleChange}
+    required
+  >
+    {STATUS_OPTIONS.map((status) => (
+      <option key={status} value={status}>{status}</option>
+    ))}
+  </Form.Select>
+</Form.Group>
+
 
           <Form.Group className="mb-3">
             <Form.Label>Assign To</Form.Label>
@@ -211,8 +225,9 @@ export default function TaskAssign() {
           
             </Form.Select>
           </Form.Group>
+          </div>
 
-          <div className="text-center">
+          <div className="text-center" style={{paddingTop:'15px', borderTop:''}}>
             <Button type="submit" variant="primary" disabled={submitting}>
               {submitting ? "Assigning..." : "Assign Task"}
             </Button>
@@ -220,5 +235,6 @@ export default function TaskAssign() {
         </Form>
       )}
     </Container>
+    </div>
   );
 }

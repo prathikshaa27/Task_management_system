@@ -92,7 +92,9 @@ body { overflow-x: hidden; }
   }
 
   .task-card {
+    height: 100%;
     padding: 1rem !important;
+    transition: transform 0.2s ease;
   }
 
   .card.shadow-sm.p-4.mb-4 .row.g-3 > div {
@@ -127,7 +129,7 @@ footer {
 }
 
 main {
-  min-height: 60vh;
+  min-height: auto;
 }
 * {
   box-sizing: border-box;
@@ -136,13 +138,80 @@ main {
 html, body {
   height: 100%;
   margin: 0;
-  padding: 0;
-  width: 100%;
-  max-width: 100%;
+  padding: 0;;
   overflow-x: hidden;
+
+}
+
+#root {
+  height: 100vh;
+}
+
+body {
+  overflow-y: auto;
+  background-color: #f1f4ff;
 }
 
 header, .dashboard-banner, main {
   max-width: 100vw;
   overflow-x: hidden;
 }
+.scrollable-content {
+  overflow-y: auto;
+  overflow-x: hidden;
+  height: 100%;
+}
+header {
+width: 100%;
+overflow: hidden;
+flex-shrink: 0;
+}
+
+header .container {
+width: 100%;
+max-width: 100%;
+overflow: hidden;
+}
+
+main {
+max-width: 100vw;
+overflow-x: hidden;
+}
+
+.dashboard-banner {
+max-width: 100vw;
+overflow-x: hidden;
+}
+
+.task-cards-container {
+    scrollbar-width: thin;
+    scrollbar-color: #888 #f1f1f1;
+}
+
+.task-cards-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.task-cards-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.task-cards-container::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 10px;
+}
+
+.task-cards-container::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+.container {
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+.admin-dashboard-container {
+    overflow: hidden !important;
+}
+

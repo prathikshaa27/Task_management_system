@@ -40,12 +40,12 @@ export default function Signup() {
       newErrors.email = "Email is required"
     }
     else if(!emailRegex.test(formData.email)){
-      newErrors.email = "Please enter a valid email address"
+      newErrors.email = "Please enter a valid email address";
     }
 
     
     if(!strongPasswordRegex.test(formData.password)){
-      newErrors.password="Password msut be atleast 8 characters long and contain both letters and numbers"
+      newErrors.password="Password must be at least 8 characters long and contain both letters and numbers";
     }
 
     if (formData.password !== formData.password_check) {

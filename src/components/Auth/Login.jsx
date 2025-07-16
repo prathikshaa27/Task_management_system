@@ -44,11 +44,11 @@ export default function Login() {
     }
 
     try {
-      const isLoggedIn = await login(formData);
-      if (isLoggedIn) {
+      const loggedInUser = await login(formData);
+      if (loggedInUser) {
         setSuccess("Login successful! Redirecting...");
         setTimeout(() => {
-          const currentRole = user?.role;
+          const currentRole = loggedInUser?.role;
           if (currentRole === "admin") {
             navigate("/admin-dashboard");
           } else {

@@ -1,5 +1,5 @@
 import React,{useEffect,useState} from "react"
-import { deleteTasks, fetchTaskNotifications, fetchTasks } from "../../services/task"
+import { deleteTasks, fetchTaskNotifications, fetchTasks, updateTask} from "../../services/task"
 import { Link } from "react-router-dom"
 import { useAuth } from "../../context/AuthContext";
 import { STATUS_OPTIONS,PRIORITY_CHOICES,PAGE_SIZE } from "../../constants/taskOptions";
@@ -34,6 +34,19 @@ export default function TaskList(){
   };
   loadNotifications();
 }, []);
+   const handleStatusChange = async(taskId, newStatus) =>{
+      try{
+        await updateTask(taskId,{status : newStatus});
+        setTasks((prevTasks)=>
+          prevTasks.map((task) =>
+            task.id === taskId ? {...task,status:newStatus} : task
+      )
+    );
+      }catch(err){
+        console.error("Error updating status", err);
+        setError("Failed to update task status")
+      }
+    };
   
     useEffect(() => {
     const timer = setTimeout(() => {
@@ -152,7 +165,7 @@ export default function TaskList(){
       <>
         <div className="row g-4">
           {tasks.map((task) => (
-            <TaskCard key={task.id} task={task} onDelete={handleDelete} />
+            <TaskCard key={task.id} task={task} onDelete={handleDelete} onStatusChange={handleStatusChange} />
           ))}
         </div>
         {totalPages > 1 && (

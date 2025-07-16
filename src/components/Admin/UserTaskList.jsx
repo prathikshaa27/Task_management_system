@@ -52,7 +52,7 @@ export default function UserTasks() {
     loadUserTasks();
   }, [filters]);
  return (
-  <Container className="py-4" style={{ background: "#f8f9fa", minHeight: "100vh" }}>
+  <div style={{ height: "100%", display: "flex", flexDirection: "column" }}>
     <div className="text-center mb-4">
       <h2 className="fw-bold text-primary">
         <RiTodoFill className="me-2" />

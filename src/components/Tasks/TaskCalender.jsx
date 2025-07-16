@@ -30,9 +30,10 @@ export default function TaskCalendar() {
   }, []);
 
   return (
-    <div className="container py-5">
-      <div className="text-center mb-4">
-        <h2 className="fw-bold text-primary">
+    <div className="min-h-screen bg-gray-50 p-6">
+      <div className="max-w-6xl mx-auto">
+        <div className="text-center mb-8">     
+        <h2 className="text-3xl font-bold text-gray-800 mb-2">
           <i className="bi bi-calendar3 me-2"></i>Task Calendar
         </h2>
         <p className="text-muted mb-0">Visualize your deadlines and plan your month effectively ✨</p>
@@ -44,6 +45,7 @@ export default function TaskCalendar() {
         events={events}
         height="auto"
       />
+    </div>
     </div>
     </div>
   );

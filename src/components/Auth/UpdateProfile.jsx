@@ -71,7 +71,7 @@ export default function UpdateProfile() {
   };
 
   return (
-  <div className="container-fluid d-flex justify-content-center align-items-center bg-light min-vh-100 px-3">
+  <div className="h-100 d-flex justify-content-center align-items-center bg-light px-3">
     <motion.div
       initial={{ opacity: 0, y: 40 }}
       animate={{ opacity: 1, y: 0 }}

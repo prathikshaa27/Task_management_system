@@ -9,9 +9,8 @@ export default function Dashboard(){
   const canAssign = role === "lead" ||role === 'senior';
     return(
       
-    <div className="position-relative d-flex flex-column flex-grow-1" style={{
+    <div className="h-100 d-flex flex-column" style={{
       background: "linear-gradient(135deg, #f2f4ff, #dbeafe)",
-      overflowX:"hidden"
     }}>
         <img
         src={dashboard}
@@ -26,26 +25,29 @@ export default function Dashboard(){
         }}
         />
 
-      <div className="py-4 px-4 shadow-sm w-100 dashboard-banner" 
-      style={{ 
-        backgroundColor: "#4f46e5",
-        color: "#ffffff",
-        zIndex: 1 
+      <div className="py-3 px-4 shadow-sm w-100 dashboard-banner flex-shrink-0"
+        style={{
+          backgroundColor: "#4f46e5",
+          color: "#ffffff",
+          zIndex: 1
         }}>
-        <h2 className="text-3xl font-bold text-white mb-2 text-3 text-center">Welcome to Your Task Dashboard 📋</h2>
-          <p className="text-lg text-white text-center">Manage your tasks effectively, stay organized & stay ahead ✨</p>
+        <div className="d-flex justify-content-between align-items-center flex-wrap">
+          <div className="text-center w-100">
+            <h2 className="fs-4 fw-bold text-white mb-1">Welcome to Your Task Dashboard 📋</h2>
+            <p className="mb-0 text-white-50">Stay organized & stay ahead</p>
+          </div>
           {canAssign && (
-          <div className="text-center mt-3">
-            <Link to="/tasks/assign" className="btn btn-warning shadow-sm fw-bold">
+            <Link to="/tasks/assign" className="btn btn-light shadow-sm fw-semibold px-4 ">
               <i className="bi bi-send-check-fill me-2"></i>
               Assign New Task
             </Link>
-          </div>
-        )}
-          </div>
-           <div className="flex-grow-1 overflow-auto px-4 py-3" style={{ zIndex: 1 ,minHeight:0}}>
-        <TaskList />
+          )}
         </div>
       </div>
+      
+      <div className="flex-grow-1 px-4 py-3" style={{ zIndex: 2 ,overflow:"auto",minHeight:0}}>
+        <TaskList />
+      </div>
+    </div>
   );
 }
