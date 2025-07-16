@@ -65,9 +65,15 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         token["role"] = user.role
         return token
 
+
 def validate(self, attrs):
-        data = super().validate(attrs)
-        return data
+    data = super().validate(attrs)
+    return data
+
+
+def validate(self, attrs):
+    data = super().validate(attrs)
+    return data
 
 
 class UserSerializer(serializers.ModelSerializer):

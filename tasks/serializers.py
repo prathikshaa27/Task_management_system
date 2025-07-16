@@ -24,8 +24,9 @@ class CategorySerializer(serializers.ModelSerializer):
 
 class TaskSerializer(serializers.ModelSerializer):
     category = serializers.PrimaryKeyRelatedField(
-        queryset=Category.objects.all(), many=True
+        queryset=Category.objects.all(), many=True, required=False
     )
+    title = serializers.CharField(required=False)
     category_names = serializers.SerializerMethodField()
     username = serializers.CharField(source="user.username", read_only=True)
     assignee_id = serializers.IntegerField(write_only=True, required=False)

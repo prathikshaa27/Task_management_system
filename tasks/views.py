@@ -109,24 +109,31 @@ class TaskViewSet(viewsets.ModelViewSet):
         current_user = self.request.user
         assigner = task.assigned_by
         try:
-            if current_user.role == "junior" and assigner and assigner != current_user:
-                raise serializers.ValidationError(
-                    {
-                        "error": "You cannot edit tasks assigned to you by a senior and lead"
-                    }
-                )
-            if current_user.role == "senior" and assigner and assigner.role == "lead":
+            incoming_fields = set(self.request.data.keys())
+            allowed_fields = {"status"}
+            is_status_only = incoming_fields.issubset(allowed_fields)
+            if not is_status_only:
+                if (
+                    current_user.role == "junior"
+                    and assigner
+                    and assigner != current_user
+                ):
+                    raise serializers.ValidationError(
+                        {
+                            "error": "You cannot edit tasks assigned to you by a senior or lead"
+                        }
+                    )
+            if current_user.role == "senior" and assigner and assigner.role != "lead":
                 raise serializers.ValidationError(
                     {"error": "You cannot edit tasks assigned to you by a lead"}
                 )
             task = serializer.save(user=current_user)
+
             if "category" in self.request.data:
                 task.category.set(self.request.data.get("category", []))
         except Exception as e:
             logger.error(f"Error while updating task: {str(e)}")
-            raise serializers.ValidationError(
-                {"error": "Could not update task. Something went wrong."}
-            )
+            raise serializers.ValidationError({"error": f"Update failed: {str(e)}"})
 
     @action(detail=False, methods=["get"], url_path="notifications")
     def upcoming_tasks(self, request):
@@ -201,37 +208,30 @@ class CategoryViewSet(viewsets.ModelViewSet):
 
 class AnalyticsViewSet(viewsets.ViewSet):
     """
-    A viewset that provides analytics summary data for administrators.
+    A ViewSet for viewing task analytics.
 
-    This viewset is restricted to users with the role 'admin' and returns:
-      - The top 5 most active users based on task count.
-      - The number of tasks created for each of the past 7 days.
-      - A distribution summary of task statuses (e.g., Pending, Completed).
+    Only accessible by admin users.
+    This viewset provides statistical insights about tasks and user activity
+    for the purpose of monitoring productivity and trends.
 
     Permissions:
-        - Only authenticated users with the admin role can access this view.
-
-    Methods:
-        get(request): Returns a JSON response containing analytics data.
+        - Only users with admin privileges can access this viewset.
     """
+
     permission_classes = [IsAdminUser]
 
-    def get(self, request):
+    @action(detail=False, methods=["get"], url_path="summary")
+    def analytics_summary(self, request):
         """
-    Handle GET requests to provide an analytics summary for admin users.
+        Returns task analytics summary for admin users.
 
-    This method returns an overview of task-related analytics, including:
-      - Top 5 most active users based on the number of tasks assigned.
-      - Number of tasks created for each of the past 7 days.
-      - Distribution of task statuses across all tasks.
+        Includes:
+        - Top 5 active users based on task count
+        - Tasks created per day in the last 7 days
+        - Task count per status (e.g., pending, completed)
 
-    Args:
-        request (Request): The HTTP request object containing user credentials.
-
-    Returns:
-        Response: A DRF Response object containing analytics data or
-                  a 403 error if the user is not an admin.
-    """      
+        Only accessible to users with admin role.
+        """
         user = request.user
         if not hasattr(user, "role") or user.role != "admin":
             return Response(
@@ -267,8 +267,8 @@ class TaskAssignViewSet(viewsets.ViewSet):
     """
     ViewSet responsible for assigning tasks from one user to another.
 
-    This view handles task assignment via POST requests. Only authenticated users 
-    with proper permissions (based on business logic defined in `can_assign_tasks`) 
+    This view handles task assignment via POST requests. Only authenticated users
+    with proper permissions (based on business logic defined in `can_assign_tasks`)
     are allowed to assign tasks to others.
 
     Attributes:
@@ -277,37 +277,36 @@ class TaskAssignViewSet(viewsets.ViewSet):
 
     Methods:
         create(request):
-            Handles task creation and assignment from the assigner (request user) 
+            Handles task creation and assignment from the assigner (request user)
             to the assignee (provided via `assignee_id` in the request data).
-            Returns 201 on success, 403 for permission errors, 404 if the assignee 
+            Returns 201 on success, 403 for permission errors, 404 if the assignee
             is not found, or 400/500 for other issues.
     """
-    
-    
+
     permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
 
     def create(self, request):
         """
-    Assigns a task to another user.
+        Assigns a task to another user.
 
-    This method allows the authenticated user (assigner) to assign a task 
-    to another user (assignee) based on the provided `assignee_id` and 
-    task details in the request payload.
+        This method allows the authenticated user (assigner) to assign a task
+        to another user (assignee) based on the provided `assignee_id` and
+        task details in the request payload.
 
-    Args:
-        request (Request): The HTTP request object containing user credentials 
-                           and task assignment data (including `assignee_id`, 
-                           title, description, etc.).
+        Args:
+            request (Request): The HTTP request object containing user credentials
+                               and task assignment data (including `assignee_id`,
+                               title, description, etc.).
 
-    Returns:
-        Response: 
-            - 201 Created: If the task is successfully assigned.
-            - 400 Bad Request: If the task data is invalid.
-            - 403 Forbidden: If the assigner is not permitted to assign tasks to the assignee.
-            - 404 Not Found: If the assignee user ID does not exist.
-            - 500 Internal Server Error: For any unexpected issues during assignment.
-    """     
+        Returns:
+            Response:
+                - 201 Created: If the task is successfully assigned.
+                - 400 Bad Request: If the task data is invalid.
+                - 403 Forbidden: If the assigner is not permitted to assign tasks to the assignee.
+                - 404 Not Found: If the assignee user ID does not exist.
+                - 500 Internal Server Error: For any unexpected issues during assignment.
+        """
         try:
             assigner = request.user
             assignee_id = request.data.get("assignee_id")

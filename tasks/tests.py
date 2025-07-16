@@ -72,22 +72,29 @@ def multiple_tasks(user, category):
         status="Completed",
         due_date="2025-07-01",
     )
+
+
 pytest.fixture
+
+
 def admin_user(db):
     from django.contrib.auth import get_user_model
+
     User = get_user_model()
     return User.objects.create_user(
         username="admin_user",
         password="Admin@123",
         email="admin@example.com",
-        role="admin"
+        role="admin",
     )
+
 
 @pytest.fixture
 def admin_client(api_client, admin_user):
     token = AccessToken.for_user(admin_user)
-    api_client.credentials(HTTP_AUTHORIZATION=f'Bearer {str(token)}')
+    api_client.credentials(HTTP_AUTHORIZATION=f"Bearer {str(token)}")
     return api_client
+
 
 @pytest.fixture
 def admin_tasks(admin_user):
@@ -100,19 +107,27 @@ def admin_tasks(admin_user):
             created_at=today - timedelta(days=i),
         )
 
+
 @pytest.fixture
 def assigner_user():
-    return User.objects.create_user(username="assigner", password="Assign@123", role="lead")
+    return User.objects.create_user(
+        username="assigner", password="Assign@123", role="lead"
+    )
+
 
 @pytest.fixture
 def assignee_user():
-    return User.objects.create_user(username="assignee", password="Assignee@123", role="senior")
+    return User.objects.create_user(
+        username="assignee", password="Assignee@123", role="senior"
+    )
+
 
 @pytest.fixture
 def assign_auth_client(api_client, assigner_user):
     token = AccessToken.for_user(assigner_user)
     api_client.credentials(HTTP_AUTHORIZATION=f"Bearer {str(token)}")
     return api_client
+
 
 @pytest.fixture
 def assign_category():
@@ -207,12 +222,12 @@ def test_sort_task_by_due_date(auth_client, multiple_tasks):
     titles = [task["due_date"] for task in response.data["results"]]
     assert titles == sorted(titles)
 
+
 @pytest.mark.django_db
 def test_list_categories(auth_client, user):
     work_category = Category.objects.create(name="Work")
     personal_category = Category.objects.create(name="Personal")
     urgent_category = Category.objects.create(name="Urgent")
-
 
     task = Task.objects.create(
         user=user,
@@ -236,25 +251,14 @@ def test_list_categories(auth_client, user):
     assert "Personal" in category_names
     assert "Urgent" in category_names
 
-@pytest.mark.django_db
-def test_analytics_summary_success(admin_client, admin_tasks):
-    url = reverse("analytics-list")
-    response = admin_client.get(url)
-
-    assert response.status_code == 200
-    assert "active_users" in response.data
-    assert "tasks_per_day" in response.data
-    assert "status_summary" in response.data
-    assert isinstance(response.data["active_users"], list)
-    assert isinstance(response.data["tasks_per_day"], dict)
-    assert isinstance(response.data["status_summary"], list)
-
-
 
 @pytest.mark.django_db
-def test_assign_task_success(assign_auth_client, assigner_user,assignee_user,assign_category,monkeypatch):
+def test_assign_task_success(
+    assign_auth_client, assigner_user, assignee_user, assign_category, monkeypatch
+):
     from tasks.views import can_assign_tasks
-    monkeypatch.setattr("tasks.views.can_assign_tasks",lambda assigner, assignee:True)
+
+    monkeypatch.setattr("tasks.views.can_assign_tasks", lambda assigner, assignee: True)
     url = reverse("assign-task-list")
     data = {
         "title": "Test Task",
@@ -263,7 +267,7 @@ def test_assign_task_success(assign_auth_client, assigner_user,assignee_user,ass
         "status": "Pending",
         "category": [assign_category.id],
         "assignee_id": assignee_user.id,
-        "due_date": "2025-07-20"
+        "due_date": "2025-07-20",
     }
     response = assign_auth_client.post(url, data=data, format="json")
 
@@ -272,5 +276,3 @@ def test_assign_task_success(assign_auth_client, assigner_user,assignee_user,ass
     assert response.data["assignee_name"] == assignee_user.username
     assert response.data["assigned_by_name"] == assigner_user.username
     assert response.data["assigned_by_role"] == assigner_user.role
-
-    

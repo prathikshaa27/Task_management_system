@@ -19,22 +19,26 @@ def api_client():
 def create_user():
     def make_user(username, password, email, role="junior"):
         return User.objects.create_user(
-            username=username,
-            password=password,
-            email=email,
-            role=role           
+            username=username, password=password, email=email, role=role
         )
 
     return make_user
 
+
 @pytest.fixture
 def authenticated_client(create_user):
     def make_authenticated_client(role="junior"):
-     user = create_user(username=f"{role}_user", password="testpass@123", email=f"{role}@gmail.com", role=role)
-     token = AccessToken.for_user(user)
-     client = APIClient()
-     client.credentials(HTTP_AUTHORIZATION=f'Bearer {str(token)}')
-     return client,user
+        user = create_user(
+            username=f"{role}_user",
+            password="testpass@123",
+            email=f"{role}@gmail.com",
+            role=role,
+        )
+        token = AccessToken.for_user(user)
+        client = APIClient()
+        client.credentials(HTTP_AUTHORIZATION=f"Bearer {str(token)}")
+        return client, user
+
     return make_authenticated_client
 
 
@@ -51,60 +55,66 @@ def test_user_registration(api_client):
     assert response.status_code == status.HTTP_201_CREATED
     assert User.objects.filter(username="testuser").exists()
 
+
 @pytest.mark.django_db
-def test_login_success_with_role(api_client,create_user):
-    user = create_user(username="testuser", password="testuser@123",email="testuser@example.com")
+def test_login_success_with_role(api_client, create_user):
+    user = create_user(
+        username="testuser", password="testuser@123", email="testuser@example.com"
+    )
     url = reverse("token_obtain_pair")
-    data = {"username":"testuser", "password":"testuser@123"}
+    data = {"username": "testuser", "password": "testuser@123"}
     response = api_client.post(url, data=data)
-    access_token = response.data['access']
+    access_token = response.data["access"]
     decoded_token = AccessToken(access_token)
     assert "role" in decoded_token
     assert decoded_token["role"] == "junior"
-   
+
+
 @pytest.mark.django_db
 def test_password_mismatch(authenticated_client):
     client, _ = authenticated_client()
     url = reverse("change-password")
-    data = {
-        "new_password":"TestPass@123",
-        "confirm_password":"TestPass@12"
-    }
+    data = {"new_password": "TestPass@123", "confirm_password": "TestPass@12"}
     response = client.post(url, data=data)
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert response.data["error"] == "Passwords do not match."
+
 
 @pytest.mark.django_db
 def test_password_change_missing_fields(authenticated_client):
     client, _ = authenticated_client()
     url = reverse("change-password")
-    data = {"new_password":"TestPass@123"}
+    data = {"new_password": "TestPass@123"}
     response = client.post(url, data=data)
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert "error" in response.data
+
 
 @pytest.mark.django_db
 def test_profile_update_without_password(authenticated_client):
     client, _ = authenticated_client()
     url = reverse("display-and-update-profile")
-    new_data = {"username":"testuser", "email":"testuser@gmail.com"}
+    new_data = {"username": "testuser", "email": "testuser@gmail.com"}
     response = client.put(url, new_data, format="json")
     assert response.status_code == status.HTTP_200_OK
     assert response.data["username"] == "testuser"
-   
+
+
 @pytest.mark.django_db
 def test_profile_update_with_password(authenticated_client):
     client, _ = authenticated_client()
     url = reverse("display-and-update-profile")
-    updates_data = {"username":"testuser", "email":"testuser@gmail.com","password":"testpass@123"}
+    updates_data = {
+        "username": "testuser",
+        "email": "testuser@gmail.com",
+        "password": "testpass@123",
+    }
     response = client.put(url, updates_data, format="json")
     assert response.status_code == status.HTTP_200_OK
-    login_data = {
-        "username":"testuser",
-        "password":"testpass@123"
-    }
+    login_data = {"username": "testuser", "password": "testpass@123"}
     login_response = client.post(reverse("token_obtain_pair"), login_data)
     assert login_response.status_code == status.HTTP_200_OK
+
 
 @pytest.mark.django_db
 def test_user_list_access_authorized_admin(authenticated_client):
@@ -112,19 +122,18 @@ def test_user_list_access_authorized_admin(authenticated_client):
     response = client.get(reverse("user-list"))
     assert response.status_code == status.HTTP_200_OK
 
+
 @pytest.mark.django_db
-def test_admin_can_update_user_roles(authenticated_client,create_user):
+def test_admin_can_update_user_roles(authenticated_client, create_user):
     target_user = create_user(
         username="testuser",
         password="testpass@123",
-        email = "testuser@gmail.com",
-        role="junior"
+        email="testuser@gmail.com",
+        role="junior",
     )
     client, _ = authenticated_client("admin")
-    url = reverse("user-role", kwargs={"pk":target_user.pk})
-    data = {
-        "assigned_role":"senior"
-    }
+    url = reverse("user-role", kwargs={"pk": target_user.pk})
+    data = {"assigned_role": "senior"}
     response = client.patch(url, data=data, format="json")
     assert response.status_code == status.HTTP_200_OK
     assert response.data["role"] == "senior"
