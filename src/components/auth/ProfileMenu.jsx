@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { fetchUserProfile } from "../../services/auth";
-import {Spinner} from "react-bootstrap"
-
+import { Spinner } from "react-bootstrap";
 
 export default function ProfileMenu() {
   const navigate = useNavigate();
@@ -37,7 +36,10 @@ export default function ProfileMenu() {
 
       <div className="mt-1">
         {user ? (
-          <small className="fw-semibold text-dark text-truncate" style={{ maxWidth: "80px" }}>
+          <small
+            className="fw-semibold text-dark text-truncate"
+            style={{ maxWidth: "80px" }}
+          >
             {user.username}
           </small>
         ) : (

@@ -1,14 +1,16 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { getPriorityBadgeClass } from "../../utils/priorityUtils";
-import { shouldShowAssignedBy, isOverdue, canEditorDelete } from "../../utils/taskUtils";
+import {
+  shouldShowAssignedBy,
+  isOverdue,
+  canEditorDelete,
+} from "../../utils/taskUtils";
 import { useAuth } from "../../context/AuthContext";
 import { STATUS_OPTIONS } from "../../constants/taskOptions";
 
-
-export default function TaskCard({ task, onDelete,onStatusChange}) {
+export default function TaskCard({ task, onDelete, onStatusChange }) {
   const { user, role } = useAuth();
-
 
   return (
     <div className="col-md-6 col-lg-4">
@@ -16,7 +18,9 @@ export default function TaskCard({ task, onDelete,onStatusChange}) {
         <div className="card-body d-flex flex-column">
           <h5 className="card-title">{task.title}</h5>
           <p className="text-muted mb-2">{task.description}</p>
-          <p className={`mb-1 ${isOverdue(task.due_date) ? "text-danger fw-bold" : ""}`}>
+          <p
+            className={`mb-1 ${isOverdue(task.due_date) ? "text-danger fw-bold" : ""}`}
+          >
             <i className="bi bi-calendar-event me-1"></i> Due: {task.due_date}
           </p>
 
@@ -29,21 +33,21 @@ export default function TaskCard({ task, onDelete,onStatusChange}) {
             </div>
           )}
           {task.assignee_id === user.id && (
-  <div className="mb-2">
-    <strong>Status:</strong>{" "}
-    <select
-      className="form-select form-select-sm d-inline w-auto ms-2"
-      value={task.status}
-      onChange={(e) => onStatusChange(task.id, e.target.value)}
-    >
-      {STATUS_OPTIONS.map((status) => (
-        <option key={status} value={status}>
-          {status}
-        </option>
-      ))}
-    </select>
-  </div>
-)}
+            <div className="mb-2">
+              <strong>Status:</strong>{" "}
+              <select
+                className="form-select form-select-sm d-inline w-auto ms-2"
+                value={task.status}
+                onChange={(e) => onStatusChange(task.id, e.target.value)}
+              >
+                {STATUS_OPTIONS.map((status) => (
+                  <option key={status} value={status}>
+                    {status}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
 
           <div className="mb-2">
             <strong>Priority:</strong>{" "}
@@ -73,7 +77,7 @@ export default function TaskCard({ task, onDelete,onStatusChange}) {
             >
               <i className="bi bi-eye"></i>
             </Link>
-            {canEditorDelete(task,user,role) && (
+            {canEditorDelete(task, user, role) && (
               <>
                 <Link
                   to={`/tasks/update/${task.id}`}

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { changePassword ,refreshAccessToken} from "../../services/auth"; 
-import {motion} from "framer-motion"
+import { changePassword, refreshAccessToken } from "../../services/auth";
+import { motion } from "framer-motion";
 
 export default function ChangePassword() {
   const [newPassword, setNewPassword] = useState("");
@@ -16,13 +16,12 @@ export default function ChangePassword() {
     setError("");
 
     try {
-      await refreshAccessToken();
       const res = await changePassword({
         new_password: newPassword,
         confirm_password: confirmPassword,
       });
-      if(res.status === 200){
-       setMessage("Password updated successfully!");
+      if (res.status === 200) {
+        setMessage("Password updated successfully!");
       }
       setTimeout(() => navigate("/login"), 2000);
     } catch (err) {
@@ -33,23 +32,24 @@ export default function ChangePassword() {
   };
 
   return (
-    <div className="d-flex align-items-center justify-content-center min-vh-100"
+    <div
+      className="d-flex align-items-center justify-content-center min-vh-100"
       style={{
         background: "linear-gradient(135deg, #f5f7fa, #c3cfe2)",
       }}
+    >
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        className="card-shadow-lg p-4"
+        style={{
+          width: "100%",
+          maxWidth: "420px",
+          borderRadius: "1rem",
+          backgroundColor: "#ffffffd9",
+        }}
       >
-        <motion.div
-          initial={{opacity: 0, scale: 0.95, y: 20}}
-          animate={{opacity: 1, scale: 1,y: 0}}
-          transition={{duration: 0.6}}
-          className="card-shadow-lg p-4"
-          style={{
-            width: "100%",
-            maxWidth: "420px",
-            borderRadius: "1rem",
-            backgroundColor:"#ffffffd9"
-          }}
-          >
         <h3 className="text-center fw-bold mb-2">Reset Your Password 🔐</h3>
         <p className="text-muted text-center mb-4 small">
           Just a few steps away from getting back in!
@@ -92,7 +92,7 @@ export default function ChangePassword() {
         <p className="text-center text-muted mt-3 small">
           We will help you get back on track 🚀
         </p>
-        </motion.div>
-      </div>
+      </motion.div>
+    </div>
   );
 }

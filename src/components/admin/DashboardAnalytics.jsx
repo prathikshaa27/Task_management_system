@@ -1,33 +1,46 @@
-import React ,{useEffect, useState}from "react";
-import { BarChart,Bar,XAxis,YAxis,Tooltip,ResponsiveContainer,PieChart,Pie,Cell,Legend } from "recharts";
-import {Card,Spinner,Table} from "react-bootstrap";
+import React, { useEffect, useState } from "react";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+  Legend,
+} from "recharts";
+import { Card, Spinner, Table } from "react-bootstrap";
 import { fetchAnalyticsSummary } from "../../services/task";
 import { STATUS_CHART_COLORS } from "../../constants/analytics";
-export default function AdminDashboardAnalytics(){
-    const[data,setData] = useState(null)
-    const[loading, setLoading] = useState(true);
+export default function AdminDashboardAnalytics() {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        const loadAnalytics = async() =>{
-            try{
-                const analyticsData = await fetchAnalyticsSummary();
-                setData(analyticsData)
-            }catch(err){
-                console.error("Erro fetching analytics", err);
-            }finally{
-                setLoading(false);
-            }
-        };
-        loadAnalytics();
-    }, []);
-    if(loading){
-        return <Spinner animation="border" className="d-block mx-auto mt-5" />;
-    }
-    const taskDayData = Object.entries(data.tasks_per_day).map(([day, count]) =>({
-        day,
-        count,
-    }));
-    return (
+  useEffect(() => {
+    const loadAnalytics = async () => {
+      try {
+        const analyticsData = await fetchAnalyticsSummary();
+        setData(analyticsData);
+      } catch (err) {
+        console.error("Error fetching analytics", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadAnalytics();
+  }, []);
+  if (loading) {
+    return <Spinner animation="border" className="d-block mx-auto mt-5" />;
+  }
+  const taskDayData = Object.entries(data.tasks_per_day).map(
+    ([day, count]) => ({
+      day,
+      count,
+    }),
+  );
+  return (
     <div className="container py-4">
       <div className="mb-4">
         <h3 className="text-center text-primary">Admin Task Analytics</h3>
@@ -71,7 +84,11 @@ export default function AdminDashboardAnalytics(){
                     {data.status_summary.map((_, index) => (
                       <Cell
                         key={`cell-${index}`}
-                        fill={STATUS_CHART_COLORS[index % STATUS_CHART_COLORS.length]}
+                        fill={
+                          STATUS_CHART_COLORS[
+                            index % STATUS_CHART_COLORS.length
+                          ]
+                        }
                       />
                     ))}
                   </Pie>

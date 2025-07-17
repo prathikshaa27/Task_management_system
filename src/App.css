@@ -66,7 +66,9 @@ body {
 .no-scroll {
   overflow: hidden;
 }
-body { overflow-x: hidden; }
+body {
+  overflow-x: hidden;
+}
 @media (max-width: 768px) {
   header .container-fluid {
     flex-direction: column;
@@ -135,12 +137,12 @@ main {
   box-sizing: border-box;
 }
 
-html, body {
+html,
+body {
   height: 100%;
   margin: 0;
-  padding: 0;;
+  padding: 0;
   overflow-x: hidden;
-
 }
 
 #root {
@@ -148,11 +150,12 @@ html, body {
 }
 
 body {
-  overflow-y: auto;
   background-color: #f1f4ff;
 }
 
-header, .dashboard-banner, main {
+header,
+.dashboard-banner,
+main {
   max-width: 100vw;
   overflow-x: hidden;
 }
@@ -162,56 +165,70 @@ header, .dashboard-banner, main {
   height: 100%;
 }
 header {
-width: 100%;
-overflow: hidden;
-flex-shrink: 0;
+  width: 100%;
+  overflow: hidden;
+  flex-shrink: 0;
 }
 
 header .container {
-width: 100%;
-max-width: 100%;
-overflow: hidden;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
 }
 
 main {
-max-width: 100vw;
-overflow-x: hidden;
+  max-width: 100vw;
+  overflow-x: hidden;
 }
 
 .dashboard-banner {
-max-width: 100vw;
-overflow-x: hidden;
+  max-width: 100vw;
+  overflow-x: hidden;
 }
 
-.task-cards-container {
-    scrollbar-width: thin;
-    scrollbar-color: #888 #f1f1f1;
+.scrollable-tasks-container {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
-.task-cards-container::-webkit-scrollbar {
-    width: 8px;
+.scrollable-tasks-container::-webkit-scrollbar {
+  display: none;
 }
 
-.task-cards-container::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 10px;
-}
-
-.task-cards-container::-webkit-scrollbar-thumb {
-    background: #888;
-    border-radius: 10px;
-}
-
-.task-cards-container::-webkit-scrollbar-thumb:hover {
-    background: #555;
-}
-
-.container {
-    max-width: 100%;
-    overflow-x: hidden;
+.scrollable-tasks-container {
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .admin-dashboard-container {
-    overflow: hidden !important;
+  overflow: hidden !important;
 }
 
+body.admin-page {
+  overflow-x: hidden;
+}
+
+.task-card {
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.row {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.row > * {
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+}
+
+body.no-scroll {
+  overflow: hidden !important;
+  overflow-y: hidden !important;
+}
+
+.task-assign-container {
+  max-height: 100vh;
+  overflow-y: auto;
+}

@@ -123,9 +123,7 @@ export default function Login() {
               />
               <label htmlFor="username">Username</label>
               {fieldErrors.username && (
-                <div className="invalid-feedback">
-                  {fieldErrors.username}
-                </div>
+                <div className="invalid-feedback">{fieldErrors.username}</div>
               )}
             </div>
 

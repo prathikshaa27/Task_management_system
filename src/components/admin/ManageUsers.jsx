@@ -8,7 +8,7 @@ import {
   Button,
 } from "react-bootstrap";
 import { getUsers, updateUserRole } from "../../services/auth";
-import { USER_ROLES,ASSIGNABLE_ROLES } from "../../constants/roles";
+import { USER_ROLES, ASSIGNABLE_ROLES } from "../../constants/roles";
 
 export default function ManageUsers() {
   const [users, setUsers] = useState([]);
@@ -49,8 +49,8 @@ export default function ManageUsers() {
       await updateUserRole(userId, newRole);
       setUsers((prev) =>
         prev.map((user) =>
-          user.id === userId ? { ...user, role: newRole } : user
-        )
+          user.id === userId ? { ...user, role: newRole } : user,
+        ),
       );
     } catch (err) {
       console.error("Role update failed", err);
@@ -85,42 +85,41 @@ export default function ManageUsers() {
               <th>Action</th>
             </tr>
           </thead>
-         <tbody>
-  {users
-    .filter((user) => user.role !== "admin") 
-    .map((user, idx) => (
-      <tr key={user.id}>
-        <td>{idx + 1}</td>
-        <td>{user.username}</td>
-        <td>{user.email}</td>
-        <td>
-          <Form.Select
-            value={selectedRoles[user.id] || user.role}
-            onChange={(e) =>
-              handleRoleSelect(user.id, e.target.value)
-            }
-          >
-            {ASSIGNABLE_ROLES.map((role) => (
-              <option key={role} value={role}>
-                {role.charAt(0).toUpperCase() + role.slice(1)}
-              </option>
-            ))}
-          </Form.Select>
-        </td>
-        <td>
-          <Button
-            variant="success"
-            size="sm"
-            disabled={updatingUserId === user.id}
-            onClick={() => handleSave(user.id)}
-          >
-            {updatingUserId === user.id ? "Saving..." : "Save"}
-          </Button>
-        </td>
-      </tr>
-    ))}
-</tbody>
-
+          <tbody>
+            {users
+              .filter((user) => user.role !== "admin")
+              .map((user, idx) => (
+                <tr key={user.id}>
+                  <td>{idx + 1}</td>
+                  <td>{user.username}</td>
+                  <td>{user.email}</td>
+                  <td>
+                    <Form.Select
+                      value={selectedRoles[user.id] || user.role}
+                      onChange={(e) =>
+                        handleRoleSelect(user.id, e.target.value)
+                      }
+                    >
+                      {ASSIGNABLE_ROLES.map((role) => (
+                        <option key={role} value={role}>
+                          {role.charAt(0).toUpperCase() + role.slice(1)}
+                        </option>
+                      ))}
+                    </Form.Select>
+                  </td>
+                  <td>
+                    <Button
+                      variant="success"
+                      size="sm"
+                      disabled={updatingUserId === user.id}
+                      onClick={() => handleSave(user.id)}
+                    >
+                      {updatingUserId === user.id ? "Saving..." : "Save"}
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+          </tbody>
         </Table>
       )}
     </Container>
