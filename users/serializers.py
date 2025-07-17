@@ -71,11 +71,6 @@ def validate(self, attrs):
     return data
 
 
-def validate(self, attrs):
-    data = super().validate(attrs)
-    return data
-
-
 class UserSerializer(serializers.ModelSerializer):
     assigned_role = serializers.CharField(write_only=True, required=False)
 
