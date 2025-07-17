@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { changePassword, refreshAccessToken } from "../../services/auth";
+import { changePassword} from "../../services/auth";
 import { motion } from "framer-motion";
 
 export default function ChangePassword() {
