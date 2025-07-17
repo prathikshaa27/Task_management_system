@@ -6,7 +6,7 @@ import { Form, Button, Container, Alert, Spinner } from "react-bootstrap";
 import { STATUS_OPTIONS, PRIORITY_CHOICES } from "../../constants/taskOptions";
 
 export default function TaskAssign() {
-  const { user, role } = useAuth();
+  const {role } = useAuth();
 
   const [users, setUsers] = useState([]);
   const [categories, setCategories] = useState([]);

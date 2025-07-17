@@ -8,7 +8,7 @@ import {
   Button,
 } from "react-bootstrap";
 import { getUsers, updateUserRole } from "../../services/auth";
-import { USER_ROLES, ASSIGNABLE_ROLES } from "../../constants/roles";
+import {ASSIGNABLE_ROLES } from "../../constants/roles";
 
 export default function ManageUsers() {
   const [users, setUsers] = useState([]);
