@@ -1,34 +1,32 @@
-const signupFields = [
+export const signupFormFields = [
   {
     name: "username",
     label: "Username",
     type: "text",
-    placeholder: "Username",
+    placeholder: "Enter username",
     required: true,
   },
   {
     name: "email",
     label: "Email",
     type: "email",
-    placeholder: "Email",
+    placeholder: "Enter email",
     required: true,
   },
   {
     name: "password",
     label: "Password",
     type: "password",
-    placeholder: "Password",
+    placeholder: "Enter password",
     required: true,
     toggleVisibility: true,
   },
   {
-    name: "password_check",
+    name: "confirmPassword",
     label: "Confirm Password",
     type: "password",
-    placeholder: "Confirm Password",
+    placeholder: "Confirm password",
     required: true,
     toggleVisibility: true,
   },
 ];
-
-export default signupFields;
