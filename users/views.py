@@ -161,3 +161,27 @@ class UserRoleUpdateView(generics.UpdateAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = UserSerializer
     permission_classes = [IsLeadOrSeniorOrAdmin]
+
+from django.contrib.auth.models import Group
+
+class UserRoleUpdateView(generics.UpdateAPIView):
+    queryset = CustomUser.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [IsLeadOrSeniorOrAdmin]
+
+    def patch(self, request, *args, **kwargs):
+        user = self.get_object()
+        new_role = request.data.get("role")
+
+        if not new_role:
+            return Response({"error": "Role is required."}, status=400)
+
+        try:
+            group = Group.objects.get(name=new_role)
+        except Group.DoesNotExist:
+            return Response({"error": "Invalid role."}, status=400)
+        user.groups.clear()
+        user.groups.add(group)
+        user.save()
+
+        return Response({"message": f"Role updated to {new_role}."})

@@ -1,10 +1,12 @@
 from rest_framework.permissions import BasePermission
 
 
+
+from rest_framework.permissions import BasePermission
+
 class IsLeadOrSeniorOrAdmin(BasePermission):
     def has_permission(self, request, view):
-        return (
-            request.user
-            and request.user.is_authenticated
-            and (request.user.role in ["admin", "lead", "senior"])
+        return request.user.is_authenticated and (
+            request.user.groups.filter(name__in=["admin", "lead", "senior"]).exists()
         )
+
