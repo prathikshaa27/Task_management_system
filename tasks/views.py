@@ -20,6 +20,7 @@ from django.contrib.auth import get_user_model
 from tasks.utils import can_assign_tasks
 from users.models import CustomUser
 from rest_framework import status
+from tasks.utils import get_user_role
 
 logger = logging.getLogger(__name__)
 
@@ -63,10 +64,10 @@ class TaskViewSet(viewsets.ModelViewSet):
          QuerySet: A queryset of the user's tasks.
         """
         try:
-            user = self.request.user
-            if hasattr(user, "role") and user.role == "admin":
+            user_role = get_user_role(user)
+            if user_role == "admin":
                 return Task.objects.all()
-            return Task.objects.filter(user=user)
+            return Task.objects.filter(user=user_role)
         except Exception as e:
             logger.error(f"Error fetching tasks for user {self.request.user}: {str(e)}")
             return Task.objects.none()
@@ -113,17 +114,17 @@ class TaskViewSet(viewsets.ModelViewSet):
             allowed_fields = {"status"}
             is_status_only = incoming_fields.issubset(allowed_fields)
             if not is_status_only:
-                if (
-                    current_user.role == "junior"
-                    and assigner
-                    and assigner != current_user
-                ):
+               current_role = get_user_role(current_user)
+               assigner_role = get_user_role(assigner)
+               if current_user.role == "senior" and assigner and assigner.role != "lead":
+ 
                     raise serializers.ValidationError(
                         {
                             "error": "You cannot edit tasks assigned to you by a senior or lead"
                         }
                     )
-            if current_user.role == "senior" and assigner and assigner.role != "lead":
+            if current_role == "senior" and assigner and assigner_role != "lead":
+
                 raise serializers.ValidationError(
                     {"error": "You cannot edit tasks assigned to you by a lead"}
                 )
@@ -233,7 +234,7 @@ class AnalyticsViewSet(viewsets.ViewSet):
         Only accessible to users with admin role.
         """
         user = request.user
-        if not hasattr(user, "role") or user.role != "admin":
+        if get_user_role(user) != "admin":
             return Response(
                 {"detail": "Only admins can access this endpoint"},
                 status=status.HTTP_403_FORBIDDEN,

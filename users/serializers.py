@@ -72,18 +72,7 @@ def validate(self, attrs):
 
 
 class UserSerializer(serializers.ModelSerializer):
-    assigned_role = serializers.CharField(write_only=True, required=False)
 
     class Meta:
         model = User
-        fields = ["id", "username", "email", "role", "assigned_role"]
-
-    def update(self, instance, validated_data):
-        assigned_role = validated_data.pop("assigned_role", None)
-        if assigned_role:
-            validated_data["role"] = assigned_role
-        return super().update(instance, validated_data)
-    
-    def get_role(self, obj):
-        groups = obj.groups.all()
-        return groups[0].name if groups else None
+        fields = ["id", "username", "email", "role"]
