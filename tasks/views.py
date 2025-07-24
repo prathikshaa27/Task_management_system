@@ -64,10 +64,11 @@ class TaskViewSet(viewsets.ModelViewSet):
          QuerySet: A queryset of the user's tasks.
         """
         try:
+            user = self.request.user
             user_role = get_user_role(user)
             if user_role == "admin":
                 return Task.objects.all()
-            return Task.objects.filter(user=user_role)
+            return Task.objects.filter(user=user)
         except Exception as e:
             logger.error(f"Error fetching tasks for user {self.request.user}: {str(e)}")
             return Task.objects.none()

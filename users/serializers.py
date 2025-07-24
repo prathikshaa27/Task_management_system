@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
@@ -74,5 +75,11 @@ def validate(self, attrs):
 class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = User
+        model = CustomUser
         fields = ["id", "username", "email", "role"]
+    def update(self, instance, validated_data):
+       role = validated_data.get('role')
+       if role:
+           instance.role = role
+           instance.save()
+       return super().update(instance,validated_data)
