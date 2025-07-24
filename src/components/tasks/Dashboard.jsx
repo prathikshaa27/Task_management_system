@@ -3,10 +3,58 @@ import TaskList from "./TaskList";
 import dashboard from "../../assets/images/dashboard.svg";
 import { useAuth } from "../../context/AuthContext";
 import { Link } from "react-router-dom";
+import { useEffect } from "react";
+import { BsAlarmFill } from "react-icons/bs";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import { fetchTaskNotifications } from "../../services/task";
 
 export default function Dashboard() {
   const { role } = useAuth();
   const canAssign = role === "lead" || role === "senior";
+  const navigate = useNavigate();
+  useEffect(() => {
+    const hasShown = sessionStorage.getItem("hasShownTaskReminder");
+
+    const showReminderIfDue = async () => {
+      if (hasShown) return;
+
+      try {
+        const notifications = await fetchTaskNotifications();
+        const dueSoon = notifications.find((task) => task.status !== "Completed");
+
+        if (dueSoon) {
+          toast(
+            <div
+              className="d-flex align-items-center"
+              onClick={() => navigate("/tasks")}
+              style={{ cursor: "pointer" }}
+            >
+              <BsAlarmFill className="me-2 text-danger" />
+              <span className="text-danger fw-semibold">
+                "{dueSoon.title}" is due soon! Tap here to check.
+                
+              </span>
+            </div>,
+            {
+              autoClose: 8000,
+              closeOnClick: true,
+              className: "toast-task-reminder",
+              onClick: () => navigate(`/tasks/${dueSoon.id}`),
+            }
+          );
+
+          sessionStorage.setItem("hasShownTaskReminder", "true");
+        }
+      } catch (error) {
+        console.error("Failed to fetch task reminders", error);
+      }
+    };
+
+    showReminderIfDue();
+  }, [navigate]);
+
+
   return (
     <div
       className="h-100 d-flex flex-column"

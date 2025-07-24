@@ -232,3 +232,10 @@ body.no-scroll {
   max-height: 100vh;
   overflow-y: auto;
 }
+.toast-task-reminder {
+  cursor: pointer;
+  font-size: 0.9rem;
+  border-left: 4px solid #ffc107;
+  background-color: #fffbe6;
+}
+

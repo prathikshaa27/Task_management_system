@@ -9,7 +9,7 @@ import {
 import { useAuth } from "../../context/AuthContext";
 import { STATUS_OPTIONS } from "../../constants/taskOptions";
 
-export default function TaskCard({ task, onDelete, onStatusChange }) {
+export default function TaskCard({ task, onDelete, onStatusChange ,onEdit}) {
   const { user, role } = useAuth();
 
   return (
@@ -79,12 +79,12 @@ export default function TaskCard({ task, onDelete, onStatusChange }) {
             </Link>
             {canEditorDelete(task, user, role) && (
               <>
-                <Link
-                  to={`/tasks/update/${task.id}`}
+                <button
+                  onClick={() => onEdit(task)}
                   className="btn btn-sm btn-outline-primary d-flex align-items-center justify-content-center"
                 >
                   <i className="bi bi-pencil"></i>
-                </Link>
+                </button>
                 <button
                   onClick={() => onDelete(task.id)}
                   className="btn btn-sm btn-outline-danger d-flex align-items-center justify-content-center"

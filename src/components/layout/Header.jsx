@@ -8,6 +8,7 @@ export default function Header() {
   const navigate = useNavigate();
   const homeLink = user?.role === "admin" ? "/admin-dashboard" : "/dashboard";
   const handleLogout = () => {
+    sessionStorage.removeItem("hasShownTaskReminder")
     logout();
     navigate("/login", { replace: true });
   };

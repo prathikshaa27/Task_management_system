@@ -4,6 +4,7 @@ import {
   fetchTaskNotifications,
   fetchTasks,
   updateTask,
+  createTask
 } from "../../services/task";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
@@ -12,8 +13,10 @@ import {
   PRIORITY_CHOICES,
   PAGE_SIZE,
 } from "../../constants/taskOptions";
-import NotificationCard from "./NotificationCard";
 import TaskCard from "./TaskCard";
+import TaskModal from "./TaskModal";
+import TaskEditModal from "./TaskEditModal";
+
 
 export default function TaskList() {
   const { user, role } = useAuth();
@@ -26,23 +29,11 @@ export default function TaskList() {
     ordering: "",
     page: 1,
   });
-  const [notifications, setNotifications] = useState([]);
-  const [showNotifications, setShowNotifications] = useState(true);
   const [totalPages, setTotalPages] = useState(1);
-  useEffect(() => {
-    const loadNotifications = async () => {
-      try {
-        const data = await fetchTaskNotifications();
-        const incompleteTasks = data.filter(
-          (task) => task.status != "Completed",
-        );
-        setNotifications(incompleteTasks);
-      } catch (err) {
-        console.error("Failed to fetch the tasks", err);
-      }
-    };
-    loadNotifications();
-  }, []);
+  const [showModal, setShowModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [selectedTask, setSelectedTask] = useState(null);
+
   const handleStatusChange = async (taskId, newStatus) => {
     try {
       await updateTask(taskId, { status: newStatus });
@@ -83,6 +74,18 @@ export default function TaskList() {
   useEffect(() => {
     loadTasks();
   }, [filters]);
+  
+  const handleTaskCreate = async (data) => {
+    await createTask(data);
+    setShowModal(false); 
+    loadTasks(); 
+  };
+  const handleEditClick = (task) => {
+  setSelectedTask(task);
+  setShowEditModal(true);
+};
+
+
 
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this task?")) {
@@ -104,9 +107,6 @@ export default function TaskList() {
   };
   return (
     <div>
-      {showNotifications && notifications.length > 0 && (
-        <NotificationCard notifications={notifications} />
-      )}
       <div className="card shadow-sm p-4 mb-4">
         <div className="row g-3">
           <div className="col-md-3">
@@ -164,15 +164,21 @@ export default function TaskList() {
             </select>
           </div>
           <div className="col-md-3 text-end">
-            <Link
-              to="/tasks/create"
+            <button
               className="btn btn-success w-100 w-md-auto"
-            >
+              onClick={() => setShowModal(true)}
+            >            
               <i className="bi bi-plus-circle me-1"></i> Add Task
-            </Link>
+              </button>
+            
           </div>
         </div>
       </div>
+       <TaskModal
+        show={showModal}
+        onHide={() => setShowModal(false)}
+        onCreate={handleTaskCreate}
+      />
       {error && <div className="alert alert-danger">{error}</div>}
       {tasks.length === 0 ? (
         <p className="text-muted text-center">No tasks found.</p>
@@ -185,9 +191,17 @@ export default function TaskList() {
                 task={task}
                 onDelete={handleDelete}
                 onStatusChange={handleStatusChange}
+                onEdit = {()=>handleEditClick(task)}
               />
             ))}
           </div>
+          <TaskEditModal
+  show={showEditModal}
+  onHide={() => setShowEditModal(false)}
+  taskData={selectedTask}
+  onUpdate={loadTasks}
+/>
+
           {totalPages > 1 && (
             <div className="d-flex flex-column flex-md-row justify-content-between align-items-center mt-4 gap-2">
               <button
