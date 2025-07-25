@@ -8,9 +8,13 @@ def get_user_role(user):
 def can_assign_tasks(assigner, assignee):
     assigner_role = get_user_role(assigner)
     assignee_role = get_user_role(assignee)
+    print(f"[DEBUG] Assigner: {assigner.username} Groups: {assigner.groups.all()}")
+    print(f"[DEBUG] Assignee: {assignee.username} Groups: {assignee.groups.all()}")
     print("Assigner Role:", assigner_role)
     print("Assignee Role:", assignee_role)
-    if not assignee_role or not assignee_role:
+    print("Assigner Role:", assigner_role)
+    print("Assignee Role:", assignee_role)
+    if not assigner_role or not assignee_role:
         return False
    
     if assigner_role == "lead":
