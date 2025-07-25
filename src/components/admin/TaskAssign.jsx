@@ -7,7 +7,6 @@ import { STATUS_OPTIONS, PRIORITY_CHOICES } from "../../constants/taskOptions";
 
 export default function TaskAssign() {
   const {role } = useAuth();
-  console.log("ROLE FROM AUTH:", role);
 
   const [users, setUsers] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -28,7 +27,6 @@ export default function TaskAssign() {
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-     console.log("useEffect is running!")
     const loadUsers = async () => {
       try {
         const allUsers = await getUsers();
@@ -43,7 +41,6 @@ export default function TaskAssign() {
         }
 
         setUsers(filtered);
-        console.log("My role is:", role);
 
       } catch (err) {
         console.error("Failed to load users", err);
