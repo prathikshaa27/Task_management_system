@@ -43,15 +43,27 @@ class UserProfileSerializer(serializers.ModelSerializer):
         allow_blank=True,
         validators=[validate_password],
     )
+    old_password = serializers.CharField(
+        write_only = True,
+        required = False,
+        allow_blank = True
+    )
+    
 
     class Meta:
         model = User
-        fields = ["username", "email", "password"]
+        fields = ["username", "email", "password","old_password"]
 
     def update(self, instance, validated_data):
+        old_password = validated_data.pop("old_password",None)
+        new_password = validated_data.pop("password", None)
         try:
-            if "password" in validated_data:
-                instance.set_password(validated_data.pop("password"))
+            if new_password:
+                if not old_password:
+                    raise serializers.ValidationError({"old_password":"You must provide your current password to set a new one."})
+                if not instance.check_password(old_password):
+                    raise serializers.ValidationError({"old_password":"Current password is incorrect."})
+                instance.set_password(new_password)
             return super().update(instance, validated_data)
         except Exception as e:
             raise serializers.ValidationError(

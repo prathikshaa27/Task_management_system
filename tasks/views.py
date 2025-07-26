@@ -124,7 +124,7 @@ class TaskViewSet(viewsets.ModelViewSet):
                             "error": "You cannot edit tasks assigned to you by a senior or lead"
                         }
                     )
-            if current_role == "senior" and assigner and assigner_role != "lead":
+               if current_role == "senior" and assigner and assigner_role != "lead":
 
                 raise serializers.ValidationError(
                     {"error": "You cannot edit tasks assigned to you by a lead"}
