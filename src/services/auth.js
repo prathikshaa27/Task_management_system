@@ -52,6 +52,6 @@ export const getUsers = async () => {
 
 export const updateUserRole = async (userId, newRole) => {
   return await api.patch(`users/users/${userId}/`, {
-    assigned_role: newRole,
+    role: newRole,
   });
 };

@@ -6,6 +6,7 @@ import {
   Alert,
   Form,
   Button,
+  Pagination
 } from "react-bootstrap";
 import { getUsers, updateUserRole } from "../../services/auth";
 import {ASSIGNABLE_ROLES } from "../../constants/roles";
@@ -16,6 +17,8 @@ export default function ManageUsers() {
   const [error, setError] = useState("");
   const [selectedRoles, setSelectedRoles] = useState({});
   const [updatingUserId, setUpdatingUserId] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const USERS_PER_PAGE = 15;
 
   const fetchAllUsers = async () => {
     try {
@@ -46,7 +49,10 @@ export default function ManageUsers() {
     try {
       setUpdatingUserId(userId);
       const newRole = selectedRoles[userId];
+      console.log("Selected Role:", selectedRoles[userId]);
       await updateUserRole(userId, newRole);
+      const response = await updateUserRole(userId, newRole);
+      console.log("Update response:", response);
       setUsers((prev) =>
         prev.map((user) =>
           user.id === userId ? { ...user, role: newRole } : user,
@@ -63,6 +69,28 @@ export default function ManageUsers() {
   useEffect(() => {
     fetchAllUsers();
   }, []);
+  const filteredUsers = users.filter((user) => user.role !== "admin");
+  const totalPages = Math.ceil(filteredUsers.length / USERS_PER_PAGE);
+  const paginatedUsers = filteredUsers.slice(
+    (currentPage - 1) * USERS_PER_PAGE,
+    currentPage * USERS_PER_PAGE
+  );
+
+  const renderPagination = () => {
+    let items = [];
+    for (let page = 1; page <= totalPages; page++) {
+      items.push(
+        <Pagination.Item
+          key={page}
+          active={page === currentPage}
+          onClick={() => setCurrentPage(page)}
+        >
+          {page}
+        </Pagination.Item>
+      );
+    }
+    return <Pagination>{items}</Pagination>;
+  };
 
   return (
     <Container className="py-4">
@@ -75,6 +103,7 @@ export default function ManageUsers() {
           <Spinner animation="border" variant="primary" />
         </div>
       ) : (
+         <>
         <Table bordered hover responsive className="shadow-sm">
           <thead className="table-primary">
             <tr>
@@ -86,11 +115,9 @@ export default function ManageUsers() {
             </tr>
           </thead>
           <tbody>
-            {users
-              .filter((user) => user.role !== "admin")
-              .map((user, idx) => (
+           {paginatedUsers.map((user, idx) => (
                 <tr key={user.id}>
-                  <td>{idx + 1}</td>
+                  <td>{(currentPage - 1) * USERS_PER_PAGE + idx + 1}</td>
                   <td>{user.username}</td>
                   <td>{user.email}</td>
                   <td>
@@ -121,6 +148,10 @@ export default function ManageUsers() {
               ))}
           </tbody>
         </Table>
+         {totalPages > 1 && (
+            <div className="d-flex justify-content-center">{renderPagination()}</div>
+          )}
+            </>
       )}
     </Container>
   );

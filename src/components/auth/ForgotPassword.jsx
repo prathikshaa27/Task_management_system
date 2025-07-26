@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 export default function ChangePassword() {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false); 
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
@@ -61,7 +62,7 @@ export default function ChangePassword() {
         <form onSubmit={handleSubmit}>
           <div className="form-floating mb-3">
             <input
-              type="password"
+              type={showPassword ? "text" : "password"}
               className="form-control"
               id="newPassword"
               placeholder="New Password"
@@ -70,11 +71,18 @@ export default function ChangePassword() {
               required
             />
             <label htmlFor="newPassword">New Password</label>
+              <i
+                className={`bi ${
+                  showPassword ? "bi-eye-slash" : "bi-eye"
+                } position-absolute top-50 end-0 translate-middle-y me-3`}
+                onClick={() => setShowPassword(!showPassword)}
+                style={{ cursor: "pointer" }}
+              ></i>
           </div>
 
           <div className="form-floating mb-4">
             <input
-              type="password"
+              type={showPassword ? "text" : "password"}
               className="form-control"
               id="confirmPassword"
               placeholder="Confirm Password"
@@ -83,6 +91,13 @@ export default function ChangePassword() {
               required
             />
             <label htmlFor="confirmPassword">Confirm Password</label>
+            <i
+                className={`bi ${
+                  showPassword ? "bi-eye-slash" : "bi-eye"
+                } position-absolute top-50 end-0 translate-middle-y me-3`}
+                onClick={() => setShowPassword(!showPassword)}
+                style={{ cursor: "pointer" }}
+              ></i>
           </div>
 
           <button type="submit" className="btn btn-primary w-100">

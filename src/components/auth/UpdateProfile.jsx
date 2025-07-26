@@ -7,11 +7,13 @@ export default function UpdateProfile() {
     username: "",
     email: "",
     password: "",
+    old_password:"",
   });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [originalData, setoriginalData] = useState(null);
-
+  const [showPassword, setShowPassword] = useState(false); 
+  
   useEffect(() => {
     const loadProfile = async () => {
       try {
@@ -20,6 +22,7 @@ export default function UpdateProfile() {
           username: profile.username,
           email: profile.email,
           password: "",
+          old_password:"",
         });
         setoriginalData({ username: profile.username, email: profile.email });
       } catch (err) {
@@ -51,6 +54,10 @@ export default function UpdateProfile() {
       setError("No changes were made");
       return;
     }
+    if(formData.password && !formData.old_password){
+      setError('Please enter your current password to change the password.');
+      return
+    }
     try {
       const dataToSend = {
         username: formData.username,
@@ -58,6 +65,7 @@ export default function UpdateProfile() {
       };
       if (formData.password) {
         dataToSend.password = formData.password;
+        dataToSend.old_password = formData.old_password;
       }
       await updateUserProfile(dataToSend);
       setSuccess("Profile updated successfully!");
@@ -66,9 +74,9 @@ export default function UpdateProfile() {
         username: formData.username,
         email: formData.email,
       });
-      setFormData((prev) => ({ ...prev, password: "" }));
+      setFormData((prev) => ({ ...prev, password: "" ,old_password:""}));
     } catch (err) {
-      const msg = err.response?.data?.error || "Update failed. Try again.";
+      const msg = err.response?.data?.old_password ||  err.response?.data?.error ||"Update failed. Try again.";
       setError(msg);
     }
   };
@@ -138,7 +146,7 @@ export default function UpdateProfile() {
               New Password <span className="text-muted">(optional)</span>
             </label>
             <input
-              type="password"
+              type={showPassword ? "text" : "password"}
               id="password"
               name="password"
               className="form-control"
@@ -147,6 +155,23 @@ export default function UpdateProfile() {
               placeholder="Leave blank to keep current password"
             />
           </div>
+          {formData.password && (
+            <div className="mb-4 position-relative">
+              <label htmlFor="old_password" className="form-label fw-semibold">
+                Current Password <span className="text-danger">*</span>
+              </label>
+              <input
+                type={showPassword ? "text" : "password"}
+                id="old_password"
+                name="old_password"
+                className="form-control"
+                value={formData.old_password}
+                onChange={handleChange}
+                placeholder="Enter current password"
+                required
+              />         
+            </div>
+          )}
 
           {error && <div className="alert alert-danger py-2">{error}</div>}
           {success && <div className="alert alert-success py-2">{success}</div>}
