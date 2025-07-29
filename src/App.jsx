@@ -22,6 +22,7 @@ import NotAuthorized from "./pages/NotAuthorized";
 import AdminDashboardAnalytics from "./components/admin/DashboardAnalytics";
 import ManageUsers from "./components/admin/ManageUsers";
 import TaskAssign from "./components/admin/TaskAssign";
+import AssignedTasksDashboard from "./components/tasks/AssignedTaskDashbord";
 
 function App() {
   return (
@@ -113,6 +114,18 @@ function App() {
           </ProtectedRoute>
         }
       />
+      <Route
+  path="/tasks/assigned"
+  element={
+    <ProtectedRoute allowedRoles={["junior", "senior", "lead"]}>
+      <MainLayout>
+        <AssignedTasksDashboard />
+      </MainLayout>
+    </ProtectedRoute>
+  }
+/>
+
+      
       <Route
         path="/manage-users"
         element={

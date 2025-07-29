@@ -2,14 +2,30 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { changePassword} from "../../services/auth";
 import { motion } from "framer-motion";
+import { changePasswordFields } from "../../forms/formFields"
+import FormRenderer from "../common/FormRenderer";
 
 export default function ChangePassword() {
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false); 
+  const [formData, setFormData] = useState({
+    newPassword: "",
+    confirmPassword: "",
+  });
+
+  const [fieldToggles, setFieldToggles] = useState({
+    newPassword: false,
+    confirmPassword: false,
+  });
+
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
+    const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -18,8 +34,8 @@ export default function ChangePassword() {
 
     try {
       const res = await changePassword({
-        new_password: newPassword,
-        confirm_password: confirmPassword,
+        new_password: formData.newPassword,
+        confirm_password: formData.confirmPassword,
       });
       if (res.status === 200) {
         setMessage("Password updated successfully!");
@@ -35,9 +51,7 @@ export default function ChangePassword() {
   return (
     <div
       className="d-flex align-items-center justify-content-center min-vh-100"
-      style={{
-        background: "linear-gradient(135deg, #f5f7fa, #c3cfe2)",
-      }}
+      style={{ background: "linear-gradient(135deg, #f5f7fa, #c3cfe2)" }}
     >
       <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -60,50 +74,18 @@ export default function ChangePassword() {
         {message && <div className="alert alert-success">{message}</div>}
 
         <form onSubmit={handleSubmit}>
-          <div className="form-floating mb-3">
-            <input
-              type={showPassword ? "text" : "password"}
-              className="form-control"
-              id="newPassword"
-              placeholder="New Password"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              required
-            />
-            <label htmlFor="newPassword">New Password</label>
-              <i
-                className={`bi ${
-                  showPassword ? "bi-eye-slash" : "bi-eye"
-                } position-absolute top-50 end-0 translate-middle-y me-3`}
-                onClick={() => setShowPassword(!showPassword)}
-                style={{ cursor: "pointer" }}
-              ></i>
-          </div>
-
-          <div className="form-floating mb-4">
-            <input
-              type={showPassword ? "text" : "password"}
-              className="form-control"
-              id="confirmPassword"
-              placeholder="Confirm Password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              required
-            />
-            <label htmlFor="confirmPassword">Confirm Password</label>
-            <i
-                className={`bi ${
-                  showPassword ? "bi-eye-slash" : "bi-eye"
-                } position-absolute top-50 end-0 translate-middle-y me-3`}
-                onClick={() => setShowPassword(!showPassword)}
-                style={{ cursor: "pointer" }}
-              ></i>
-          </div>
-
+          <FormRenderer
+            fields={changePasswordFields}
+            formData={formData}
+            handleChange={handleChange}
+            fieldErrors={{}} 
+            setToggles={setFieldToggles}
+          />
           <button type="submit" className="btn btn-primary w-100">
             Update Password
           </button>
         </form>
+
         <p className="text-center text-muted mt-3 small">
           We will help you get back on track 🚀
         </p>

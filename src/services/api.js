@@ -1,7 +1,8 @@
 import axios from "axios";
+import config from "../config";
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL + "/",
+  baseURL: config.API_BASE_URL + "/",
 });
 const isTokenExpired = (token) => {
   if (!token) return true;
@@ -22,7 +23,7 @@ const refreshToken = async () => {
   }
 
   const response = await axios.post(
-    `${import.meta.env.VITE_API_URL}/users/token/refresh/`,
+    `${config.API_BASE_URL}/users/token/refresh/`,
     { refresh },
   );
 

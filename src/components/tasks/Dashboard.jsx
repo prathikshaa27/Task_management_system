@@ -53,8 +53,6 @@ export default function Dashboard() {
 
     showReminderIfDue();
   }, [navigate]);
-
-
   return (
     <div
       className="h-100 d-flex flex-column"
@@ -91,14 +89,24 @@ export default function Dashboard() {
             </h2>
             <p className="mb-0 text-white-50">Stay organized & stay ahead</p>
           </div>
+
           {canAssign && (
-            <Link
-              to="/tasks/assign"
-              className="btn btn-light shadow-sm fw-semibold px-4 "
-            >
-              <i className="bi bi-send-check-fill me-2"></i>
-              Assign New Task
-            </Link>
+            <div className="d-flex gap-2 mt-3">
+              <Link
+                to="/tasks/assign"
+                className="btn btn-light shadow-sm fw-semibold px-4"
+              >
+                <i className="bi bi-send-check-fill me-2"></i>
+                Assign New Task
+              </Link>
+              <Link
+                to="/tasks/assigned"
+                className="btn btn-outline-light shadow-sm fw-semibold px-4"
+              >
+                <i className="bi bi-list-task me-2"></i>
+                View Assigned Tasks
+              </Link>
+            </div>
           )}
         </div>
       </div>
@@ -112,3 +120,4 @@ export default function Dashboard() {
     </div>
   );
 }
+

@@ -1,12 +1,10 @@
 import React, { useEffect, useState } from "react";
 import {
   deleteTasks,
-  fetchTaskNotifications,
   fetchTasks,
   updateTask,
   createTask
 } from "../../services/task";
-import { Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import {
   STATUS_OPTIONS,

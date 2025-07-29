@@ -1,4 +1,4 @@
-import api from "./api";
+import api from "../services/api";
 
 export const fetchTasks = async (filters = {}) => {
   const query = new URLSearchParams(filters).toString();
@@ -39,5 +39,10 @@ export const fetchAnalyticsSummary = async () => {
 
 export const assignTask = async (taskData) => {
   const response = await api.post("assign-task/", taskData);
+  return response.data;
+};
+
+export const fetchTasksAssignedByMe = async () => {
+  const response = await api.get("/tasks/assigned-by-me/");
   return response.data;
 };

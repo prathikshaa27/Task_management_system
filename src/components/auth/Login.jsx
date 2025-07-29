@@ -3,6 +3,8 @@ import { useNavigate, Link, useLocation } from "react-router-dom";
 import login_img from "../../assets/images/login_img.svg";
 import { useAuth } from "../../context/AuthContext";
 import { motion } from "framer-motion";
+import { loginFields } from "../../forms/formFields";
+import FormRenderer from "../common/FormRenderer";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -17,7 +19,9 @@ export default function Login() {
   });
 
   const [error, setError] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
+  const [toggles, setToggles] = useState({
+  password: false,
+});
   const [success, setSuccess] = useState("");
   const [fieldErrors, setFieldErrors] = useState({});
 
@@ -61,12 +65,10 @@ export default function Login() {
         }, 1000);
       }
     } catch (err) {
-      console.error(err);
       setError("Invalid username or password");
     }
   };
-
-    return (
+   return (
     <div className="d-flex min-vh-100 w-100">
       <div
         className="d-none d-md-flex position-relative align-items-center justify-content-center"
@@ -109,45 +111,14 @@ export default function Login() {
           {success && <div className="alert alert-success">{success}</div>}
 
           <form onSubmit={handleSubmit}>
-            <div className="form-floating mb-3">
-              <input
-                type="text"
-                className={`form-control ${
-                  fieldErrors.username ? "is-invalid" : ""
-                }`}
-                id="username"
-                name="username"
-                placeholder="Username"
-                value={formData.username}
-                onChange={handleChange}
-              />
-              <label htmlFor="username">Username</label>
-              {fieldErrors.username && (
-                <div className="invalid-feedback">{fieldErrors.username}</div>
-              )}
-            </div>
-
-            <div className="form-floating mb-3 position-relative">
-              <input
-                type={showPassword ? "text" : "password"}
-                className={`form-control ${
-                  fieldErrors.password ? "is-invalid" : ""
-                }`}
-                id="password"
-                name="password"
-                placeholder="Password"
-                value={formData.password}
-                onChange={handleChange}
-              />
-              <label htmlFor="password">Password</label>
-              <i
-                className={`bi ${
-                  showPassword ? "bi-eye-slash" : "bi-eye"
-                } position-absolute top-50 end-0 translate-middle-y me-3`}
-                onClick={() => setShowPassword(!showPassword)}
-                style={{ cursor: "pointer" }}
-              ></i>
-            </div>
+           <FormRenderer
+  fields={loginFields}
+  formData={formData}
+  fieldErrors={fieldErrors}
+  handleChange={handleChange}
+  toggles={toggles}
+  setToggles={setToggles}
+/>
 
             <div className="mb-3 text-end">
               <Link
@@ -174,4 +145,3 @@ export default function Login() {
     </div>
   );
 }
-
