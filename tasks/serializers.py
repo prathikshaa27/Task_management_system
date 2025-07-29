@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from tasks.utils import get_user_role
 from tasks.models import Category, Task
+from users.models import CustomUser
 
 
 class TaskSummarySerializer(serializers.ModelSerializer):
@@ -35,6 +36,13 @@ class TaskSerializer(serializers.ModelSerializer):
         source="assigned_by.username", read_only=True
     )
     assigned_by_role = serializers.SerializerMethodField()
+    assignee_id = serializers.PrimaryKeyRelatedField(
+    source="user",  # <- the key trick
+    queryset=CustomUser.objects.all(),
+    write_only=True,
+    required=False
+)
+
 
     class Meta:
         model = Task
@@ -53,6 +61,7 @@ class TaskSerializer(serializers.ModelSerializer):
             "assignee_name",
             "assigned_by_name",
             "assigned_by_role",
+            "assignee_id"
         ]
 
     def get_category_names(self, obj):
@@ -60,9 +69,10 @@ class TaskSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         category_data = validated_data.pop("category", [])
+        assignee = validated_data.pop("user", None)
         validated_data.pop("assignee_id", None)
         validated_data.pop("assigned_id", None)
-        task = Task.objects.create(**validated_data)
+        task = Task.objects.create(user=assignee,**validated_data)
         task.category.set(category_data)
         return task
     def get_assigned_by_role(self, obj):

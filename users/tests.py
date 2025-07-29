@@ -101,20 +101,34 @@ def test_profile_update_without_password(authenticated_client):
 
 
 @pytest.mark.django_db
-def test_profile_update_with_password(authenticated_client):
+def test_profile_update(authenticated_client):
     client, _ = authenticated_client()
     url = reverse("display-and-update-profile")
     updates_data = {
         "username": "testuser",
         "email": "testuser@gmail.com",
-        "password": "testpass@123",
     }
     response = client.put(url, updates_data, format="json")
     assert response.status_code == status.HTTP_200_OK
-    login_data = {"username": "testuser", "password": "testpass@123"}
-    login_response = client.post(reverse("token_obtain_pair"), login_data)
-    assert login_response.status_code == status.HTTP_200_OK
 
+@pytest.mark.django_db
+def test_change_password(authenticated_client):
+    client, user = authenticated_client()  
+
+    url = reverse("change-password")
+    password_data = {
+        "new_password": "newpass@123",
+        "confirm_password": "newpass@123"
+    }
+
+    response = client.post(url, password_data, format="json")
+    assert response.status_code == status.HTTP_200_OK
+    user.refresh_from_db()
+    fresh_client = APIClient()
+    login_data = {"username": user.username, "password": "newpass@123"}
+    login_response = fresh_client.post(reverse("token_obtain_pair"), login_data)
+
+    assert login_response.status_code == status.HTTP_200_OK
 
 @pytest.mark.django_db
 def test_user_list_access_authorized_admin(authenticated_client):
@@ -133,7 +147,7 @@ def test_admin_can_update_user_roles(authenticated_client, create_user):
     )
     client, _ = authenticated_client("admin")
     url = reverse("user-role", kwargs={"pk": target_user.pk})
-    data = {"assigned_role": "senior"}
+    data = {"role": "senior"}
     response = client.patch(url, data=data, format="json")
     assert response.status_code == status.HTTP_200_OK
     assert response.data["role"] == "senior"
