@@ -16,7 +16,7 @@ def can_assign_tasks(assigner, assignee):
     print("Assignee Role:", assignee_role)
     if not assigner_role or not assignee_role:
         return False
-   
+
     if assigner_role == "lead":
         return assignee_role in ["senior", "junior"]
     elif assigner_role == "senior":

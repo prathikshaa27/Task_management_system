@@ -116,20 +116,24 @@ class TaskViewSet(viewsets.ModelViewSet):
             allowed_fields = {"status"}
             is_status_only = incoming_fields.issubset(allowed_fields)
             if not is_status_only:
-               current_role = get_user_role(current_user)
-               assigner_role = get_user_role(assigner)
-               if current_user.role == "senior" and assigner and assigner.role != "lead":
- 
+                current_role = get_user_role(current_user)
+                assigner_role = get_user_role(assigner)
+                if (
+                    current_user.role == "senior"
+                    and assigner
+                    and assigner.role != "lead"
+                ):
+
                     raise serializers.ValidationError(
                         {
                             "error": "You cannot edit tasks assigned to you by a senior or lead"
                         }
                     )
-               if current_role == "senior" and assigner and assigner_role != "lead":
+                if current_role == "senior" and assigner and assigner_role != "lead":
 
-                raise serializers.ValidationError(
-                    {"error": "You cannot edit tasks assigned to you by a lead"}
-                )
+                    raise serializers.ValidationError(
+                        {"error": "You cannot edit tasks assigned to you by a lead"}
+                    )
             task = serializer.save(assigned_by=assigned_by)
 
             if "category" in self.request.data:
@@ -158,21 +162,21 @@ class TaskViewSet(viewsets.ModelViewSet):
         tasks = self.get_queryset().filter(due_date__in=[in_one_day, in_two_days])
         serializer = self.get_serializer(tasks, many=True)
         return Response(serializer.data)
+
     @action(detail=False, methods=["get"], url_path="assigned-by-me")
     def assigned_tasks(self, request):
-     """
-    Returns tasks assigned by the current authenticated user.
-    Useful for assigners to monitor the status of their assigned tasks.
-     """
-     try:
-        user = request.user
-        tasks = Task.objects.filter(assigned_by=user)
-        serializer = self.get_serializer(tasks, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-     except Exception as e:
-        logger.error(f"Error fetching assigned tasks: {str(e)}")
-        return Response({"error": "Unable to retrieve assigned tasks."}, status=500)
-
+        """
+        Returns tasks assigned by the current authenticated user.
+        Useful for assigners to monitor the status of their assigned tasks.
+        """
+        try:
+            user = request.user
+            tasks = Task.objects.filter(assigned_by=user)
+            serializer = self.get_serializer(tasks, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Exception as e:
+            logger.error(f"Error fetching assigned tasks: {str(e)}")
+            return Response({"error": "Unable to retrieve assigned tasks."}, status=500)
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
@@ -222,7 +226,6 @@ class CategoryViewSet(viewsets.ModelViewSet):
             dict: A dictionary containing the request object under the "request" key.
         """
         return {"request": self.request}
-        
 
 
 class AnalyticsViewSet(viewsets.ViewSet):
@@ -280,7 +283,6 @@ class AnalyticsViewSet(viewsets.ViewSet):
                 },
                 status=status.HTTP_200_OK,
             )
-  
 
 
 class TaskAssignViewSet(viewsets.ViewSet):
@@ -354,4 +356,3 @@ class TaskAssignViewSet(viewsets.ViewSet):
                 {"error": f"Task assignment failed: {str(e)}"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
-    

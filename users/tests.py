@@ -111,15 +111,13 @@ def test_profile_update(authenticated_client):
     response = client.put(url, updates_data, format="json")
     assert response.status_code == status.HTTP_200_OK
 
+
 @pytest.mark.django_db
 def test_change_password(authenticated_client):
-    client, user = authenticated_client()  
+    client, user = authenticated_client()
 
     url = reverse("change-password")
-    password_data = {
-        "new_password": "newpass@123",
-        "confirm_password": "newpass@123"
-    }
+    password_data = {"new_password": "newpass@123", "confirm_password": "newpass@123"}
 
     response = client.post(url, password_data, format="json")
     assert response.status_code == status.HTTP_200_OK
@@ -129,6 +127,7 @@ def test_change_password(authenticated_client):
     login_response = fresh_client.post(reverse("token_obtain_pair"), login_data)
 
     assert login_response.status_code == status.HTTP_200_OK
+
 
 @pytest.mark.django_db
 def test_user_list_access_authorized_admin(authenticated_client):
