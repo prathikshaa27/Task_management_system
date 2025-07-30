@@ -37,7 +37,7 @@ class TaskSerializer(serializers.ModelSerializer):
     )
     assigned_by_role = serializers.SerializerMethodField()
     assignee_id = serializers.PrimaryKeyRelatedField(
-        source="user",  # <- the key trick
+        source="user",  
         queryset=CustomUser.objects.all(),
         write_only=True,
         required=False,
